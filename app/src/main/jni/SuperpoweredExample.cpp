@@ -78,10 +78,10 @@ static SuperpoweredExample *renderer = NULL;
 extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_SuperPoweredPlayer_SuperpoweredExample(JNIEnv *javaEnvironment, jobject instance, jint samplerate,  jint buffersize, jstring url, jstring localpath)
 {
     const char *curl = javaEnvironment->GetStringUTFChars(url, JNI_FALSE);
-    const char *clocalpath = javaEnvironment->GetStringUTFChars(url, JNI_FALSE);
+    const char *clocalpath = javaEnvironment->GetStringUTFChars(localpath, JNI_FALSE);
     renderer = new SuperpoweredExample((unsigned int)samplerate, (unsigned int)buffersize, curl, clocalpath);
     javaEnvironment->ReleaseStringUTFChars(url, curl);
-    javaEnvironment->ReleaseStringUTFChars(url, clocalpath);
+    javaEnvironment->ReleaseStringUTFChars(localpath, clocalpath);
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_SuperPoweredPlayer_onPlayPause(JNIEnv *env, jobject instance, jboolean play)
