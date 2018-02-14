@@ -70,7 +70,6 @@ void SuperpoweredExample::onPlayPause(bool play) {
     } else {
         audioPlayer->play(false);
     };
-    SuperpoweredCPU::setSustainedPerformanceMode(play); // <-- Important to prevent audio dropouts.
 }
 
 static SuperpoweredExample *renderer = NULL;
