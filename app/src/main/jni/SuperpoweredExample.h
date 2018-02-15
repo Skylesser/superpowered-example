@@ -14,6 +14,7 @@ public:
 
     bool process(short int *output, unsigned int numberOfSamples);
     void onPlayPause(bool play);
+    void open(const char *path);
 
 private:
     SuperpoweredAndroidAudioIO *audioSystem;

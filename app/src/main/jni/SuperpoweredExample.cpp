@@ -74,19 +74,32 @@ void SuperpoweredExample::onPlayPause(bool play) {
 //    SuperpoweredCPU::setSustainedPerformanceMode(play); // <-- Important to prevent audio dropouts.
 }
 
+void SuperpoweredExample::open(const char *path)
+{
+    audioPlayer->open(path);
+    audioPlayer->play(false);
+}
+
 static SuperpoweredExample *renderer = NULL;
 
-extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_SuperPoweredPlayer_SuperpoweredExample(JNIEnv *javaEnvironment, jobject instance, jint samplerate,  jint buffersize, jstring url, jstring localpath)
+extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_SuperPoweredPlayer_SuperpoweredExample(JNIEnv *env, jobject instance, jint samplerate,  jint buffersize, jstring url, jstring localpath)
 {
-    const char *curl = javaEnvironment->GetStringUTFChars(url, JNI_FALSE);
-    const char *clocalpath = javaEnvironment->GetStringUTFChars(localpath, JNI_FALSE);
+    const char *curl = env->GetStringUTFChars(url, JNI_FALSE);
+    const char *clocalpath = env->GetStringUTFChars(localpath, JNI_FALSE);
     renderer = new SuperpoweredExample((unsigned int)samplerate, (unsigned int)buffersize, curl, clocalpath);
-    javaEnvironment->ReleaseStringUTFChars(url, curl);
-    javaEnvironment->ReleaseStringUTFChars(localpath, clocalpath);
+    env->ReleaseStringUTFChars(url, curl);
+    env->ReleaseStringUTFChars(localpath, clocalpath);
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_SuperPoweredPlayer_onPlayPause(JNIEnv *env, jobject instance, jboolean play)
 {
     renderer->onPlayPause(play);
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_SuperPoweredPlayer_open(JNIEnv *env, jobject instance, jstring url)
+{
+    const char *curl = env->GetStringUTFChars(url, JNI_FALSE);
+    renderer->open(curl);
+    env->ReleaseStringUTFChars(url, curl);
 }
 

@@ -22,4 +22,12 @@ public class MainActivity extends AppCompatActivity
 		player.startPlayback();
 	}
 	
+	public void onClickOpen(View view)
+	{
+		if (player != null)
+		{
+			player.open();
+		}
+	}
+	
 }
