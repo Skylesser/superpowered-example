@@ -8,8 +8,12 @@
 #include <android/log.h>
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_AndroidConfiguration.h>
+#include <Superpowered3BandEQ.h>
 
 #define TAG "SuperPoweredExample"
+
+static SuperpoweredExample *renderer = NULL;
+static Superpowered3BandEQ *equalizer = NULL;
 
 static void playerEventCallbackA(void *clientData, SuperpoweredAdvancedAudioPlayerEvent event, void * __unused value) {
     if (event == SuperpoweredAdvancedAudioPlayerEvent_LoadSuccess) {
@@ -21,8 +25,8 @@ static bool audioProcessing(void *clientdata, short int *audioIO, int numberOfSa
     return ((SuperpoweredExample *)clientdata)->process(audioIO, (unsigned int)numberOfSamples);
 }
 
-bool SuperpoweredExample::process(short int *output, unsigned int numberOfSamples) {
-    bool silence = !audioPlayer->process(stereoBuffer, false, numberOfSamples);
+bool SuperpoweredExample::process(short int *audioIO, unsigned int numberOfSamples) {
+    bool silence = !audioPlayer->process(stereoBuffer, false, numberOfSamples, 1.0f);
 
     if (!silence) {
         /*****************************
@@ -37,7 +41,7 @@ bool SuperpoweredExample::process(short int *output, unsigned int numberOfSample
          */
 
         // The stereoBuffer is ready now, let's put the finished audio into the requested buffers.
-        SuperpoweredFloatToShortInt(stereoBuffer, output, numberOfSamples);
+        SuperpoweredFloatToShortInt(stereoBuffer, audioIO, numberOfSamples);
     }
 
     return !silence;
@@ -80,13 +84,12 @@ void SuperpoweredExample::open(const char *path)
     audioPlayer->play(false);
 }
 
-static SuperpoweredExample *renderer = NULL;
-
 extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_SuperPoweredPlayer_SuperpoweredExample(JNIEnv *env, jobject instance, jint samplerate,  jint buffersize, jstring url, jstring localpath)
 {
     const char *curl = env->GetStringUTFChars(url, JNI_FALSE);
     const char *clocalpath = env->GetStringUTFChars(localpath, JNI_FALSE);
-    renderer = new SuperpoweredExample((unsigned int)samplerate, (unsigned int)buffersize, curl, clocalpath);
+    renderer = new SuperpoweredExample((unsigned int) samplerate, (unsigned int) buffersize, curl, clocalpath);
+    equalizer = new Superpowered3BandEQ((unsigned int) samplerate);
     env->ReleaseStringUTFChars(url, curl);
     env->ReleaseStringUTFChars(localpath, clocalpath);
 }
