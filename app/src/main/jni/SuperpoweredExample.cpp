@@ -42,6 +42,7 @@ bool SuperpoweredExample::process(short int *audioIO, unsigned int numberOfSampl
 
         // The stereoBuffer is ready now, let's put the finished audio into the requested buffers.
         SuperpoweredFloatToShortInt(stereoBuffer, audioIO, numberOfSamples);
+        //equalizer->process(audioIO, audioIO, numberOfSamples);
     }
 
     return !silence;
@@ -73,7 +74,7 @@ void SuperpoweredExample::onPlayPause(bool play) {
         audioPlayer->pause();
     } else {
         audioPlayer->play(false);
-        audioPlayer->setTempo(0.7f, true);
+        audioPlayer->setTempo(1.0f, true);
     };
 //    SuperpoweredCPU::setSustainedPerformanceMode(play); // <-- Important to prevent audio dropouts.
 }
@@ -81,7 +82,11 @@ void SuperpoweredExample::onPlayPause(bool play) {
 void SuperpoweredExample::open(const char *path)
 {
     audioPlayer->open(path);
-    audioPlayer->play(false);
+}
+
+void SuperpoweredExample::onSeek()
+{
+    audioPlayer->setPosition(120000.4658f, true, false);
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_SuperPoweredPlayer_SuperpoweredExample(JNIEnv *env, jobject instance, jint samplerate,  jint buffersize, jstring url, jstring localpath)
@@ -104,5 +109,10 @@ extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_Supe
     const char *curl = env->GetStringUTFChars(url, JNI_FALSE);
     renderer->open(curl);
     env->ReleaseStringUTFChars(url, curl);
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_SuperPoweredPlayer_onSeek(JNIEnv *env, jobject instance)
+{
+    renderer->onSeek();
 }
 

@@ -9,7 +9,9 @@ import java.io.File;
 class SuperPoweredPlayer
 {
 	
-	private static final String URL = "http://wezeejay.fr/ws/metier/test/test2.mp3";
+	public static final String URL_2 = "http://wezeejay.fr/ws/metier/test/test2.mp3";
+	public static final String URL_3 = "http://wezeejay.fr/ws/metier/test/test3.mp3";
+	public static final String URL_4 = "http://wezeejay.fr/ws/metier/test/test4.mp3";
 	
 	static
 	{
@@ -31,7 +33,7 @@ class SuperPoweredPlayer
 			repertoire.mkdirs();
 		}
 		
-		SuperpoweredExample(sampleRate, bufferSize, URL, repertoire.getAbsolutePath());
+		SuperpoweredExample(sampleRate, bufferSize, URL_4, repertoire.getAbsolutePath());
 	}
 	
 	void startPlayback()
@@ -40,9 +42,22 @@ class SuperPoweredPlayer
 		onPlayPause(true);
 	}
 	
-	void open()
+	void open2()
 	{
-		open(URL);
+		playState = false;
+		open(URL_2);
+	}
+	
+	void open3()
+	{
+		playState = false;
+		open(URL_3);
+	}
+	
+	void open4()
+	{
+		playState = false;
+		open(URL_4);
 	}
 	
 	void togglePlayback()
@@ -51,8 +66,15 @@ class SuperPoweredPlayer
 		onPlayPause(playState);
 	}
 	
+	void seek()
+	{
+		playState = false;
+		onSeek();
+	}
+	
 	private native void SuperpoweredExample(int samplerate, int buffersize, String url, String localPath);
 	private native void onPlayPause(boolean play);
 	private native void open(String url);
+	private native void onSeek();
 	
 }
