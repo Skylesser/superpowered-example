@@ -13,46 +13,12 @@
 		android:layout_height="wrap_content"
 		android:layout_margin="8dp"
 		android:onClick="onClickPlay"
-		android:text="PLAY 4"
-		app:layout_constraintBottom_toTopOf="@id/open3"
+		android:text="PLAY"
+		app:layout_constraintBottom_toTopOf="@id/toggle"
 		app:layout_constraintLeft_toLeftOf="parent"
 		app:layout_constraintRight_toRightOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintVertical_chainStyle="packed"/>
-
-	<Button
-		android:id="@+id/open2"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_margin="8dp"
-		android:onClick="onClickOpen"
-		android:text="OPEN 2"
-		app:layout_constraintBottom_toBottomOf="@id/open3"
-		app:layout_constraintRight_toLeftOf="@id/open3"
-		app:layout_constraintTop_toTopOf="@id/open3"/>
-
-	<Button
-		android:id="@+id/open3"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_margin="8dp"
-		android:onClick="onClickOpen"
-		android:text="OPEN 3"
-		app:layout_constraintBottom_toTopOf="@id/toggle"
-		app:layout_constraintLeft_toLeftOf="parent"
-		app:layout_constraintRight_toRightOf="parent"
-		app:layout_constraintTop_toBottomOf="@id/play"/>
-
-	<Button
-		android:id="@+id/open4"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_margin="8dp"
-		android:onClick="onClickOpen"
-		android:text="OPEN 4"
-		app:layout_constraintBottom_toBottomOf="@id/open3"
-		app:layout_constraintLeft_toRightOf="@id/open3"
-		app:layout_constraintTop_toTopOf="@id/open3"/>
 
 	<Button
 		android:id="@+id/toggle"
@@ -64,7 +30,7 @@
 		app:layout_constraintBottom_toTopOf="@id/seek"
 		app:layout_constraintLeft_toLeftOf="parent"
 		app:layout_constraintRight_toRightOf="parent"
-		app:layout_constraintTop_toBottomOf="@id/open3"/>
+		app:layout_constraintTop_toBottomOf="@id/play"/>
 
 	<Button
 		android:id="@+id/seek"

@@ -18,7 +18,7 @@ add_library(
 )
 
 include_directories(src/main/jni)
-include_directories(${PATH_TO_SUPERPOWERED})
+include_directories({CMAKE_SOURCE_DIR}/Superpowered)
 
 target_link_libraries(
     SuperpoweredExample

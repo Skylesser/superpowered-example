@@ -13,89 +13,121 @@
 #define TAG "SuperPoweredExample"
 
 static SuperpoweredExample *renderer = NULL;
-static Superpowered3BandEQ *equalizer = NULL;
 
-static void playerEventCallbackA(void *clientData, SuperpoweredAdvancedAudioPlayerEvent event, void * __unused value) {
-    if (event == SuperpoweredAdvancedAudioPlayerEvent_LoadSuccess) {
-        __android_log_print(ANDROID_LOG_DEBUG, TAG, "File loaded succesfully!");
+static void playerEventCallbackA(void *clientData, SuperpoweredAdvancedAudioPlayerEvent event, void * __unused value)
+{
+    if (event == SuperpoweredAdvancedAudioPlayerEvent_LoadSuccess)
+    {
+        __android_log_print(ANDROID_LOG_DEBUG, TAG, "File A loaded succesfully!");
+        SuperpoweredAdvancedAudioPlayer *player = *((SuperpoweredAdvancedAudioPlayer **)clientData);
+        player->setBpm(127.98);
+        player->setFirstBeatMs(270242.494);
+        player->setPosition(0, false, false);
     };
 }
 
-static bool audioProcessing(void *clientdata, short int *audioIO, int numberOfSamples, int __unused samplerate) {
+static void playerEventCallbackB(void *clientData, SuperpoweredAdvancedAudioPlayerEvent event, void * __unused value)
+{
+    if (event == SuperpoweredAdvancedAudioPlayerEvent_LoadSuccess)
+    {
+        __android_log_print(ANDROID_LOG_DEBUG, TAG, "File B loaded succesfully!");
+        SuperpoweredAdvancedAudioPlayer *player = *((SuperpoweredAdvancedAudioPlayer **)clientData);
+        player->setBpm(125.0);
+        player->setFirstBeatMs(31746.100);
+        player->setPosition(player->firstBeatMs, false, false);
+    };
+}
+
+static bool audioProcessing(void *clientdata, short int *audioIO, int numberOfSamples, int __unused samplerate)
+{
     return ((SuperpoweredExample *)clientdata)->process(audioIO, (unsigned int)numberOfSamples);
 }
 
-bool SuperpoweredExample::process(short int *audioIO, unsigned int numberOfSamples) {
-    bool silence = !audioPlayer->process(stereoBuffer, false, numberOfSamples, 1.0f);
+bool SuperpoweredExample::process(short int *audioIO, unsigned int numberOfSamples)
+{
+    double masterBpm = playerA->currentBpm;
+    double msElapsedSinceLastBeatA = playerA->msElapsedSinceLastBeat; // When playerB needs it, playerA has already stepped this value, so save it now.
 
-    if (!silence) {
-        /*****************************
-        *  APPLY PROCESSING BELOW
-        */
-//        const int nrChannels = 2;
-//        for (int i = 0; i < numberOfSamples * nrChannels; ++i) {
-//            stereoBuffer[i] = vibrato.processOneSample(stereoBuffer[i]);
-//        }
-        /*****************************
-         *  APPLY PROCESSING ABOVE
-         */
-
-        // The stereoBuffer is ready now, let's put the finished audio into the requested buffers.
-        SuperpoweredFloatToShortInt(stereoBuffer, audioIO, numberOfSamples);
-        //equalizer->process(audioIO, audioIO, numberOfSamples);
+    bool silence = !playerA->process(stereoBuffer, false, numberOfSamples, 1.0, masterBpm, playerB->msElapsedSinceLastBeat);
+    if (playerB->process(stereoBuffer, !silence, numberOfSamples, 1.0, masterBpm, msElapsedSinceLastBeatA))
+    {
+        silence = false;
     }
 
+    // the stereoBuffer is ready now, let's put the finished audio into the requested buffers :
+    if (!silence)
+    {
+        SuperpoweredFloatToShortInt(stereoBuffer, audioIO, numberOfSamples);
+    }
     return !silence;
 }
 
-SuperpoweredExample::SuperpoweredExample(unsigned int samplerate, unsigned int buffersize, const char *path, const char *localpath)
+SuperpoweredExample::SuperpoweredExample(unsigned int samplerate, unsigned int buffersize, const char *pathA, const char *pathB, const char *pathC, const char *localpath)
 {
     SuperpoweredAdvancedAudioPlayer::setTempFolder(localpath);
 
-    /*
-     * According to the SuperpoweredAdvancedAudioPlayer::process method, the size of our buffer should be: numberOfSamples * 8 + 64 bytes big
-     */
     stereoBuffer = (float *)memalign(16, (buffersize * 8) + 64);
 
-    audioPlayer = new SuperpoweredAdvancedAudioPlayer(&audioPlayer , playerEventCallbackA, samplerate, 0);
-    audioPlayer->open(path);
+    playerA = new SuperpoweredAdvancedAudioPlayer(&playerA , playerEventCallbackA, samplerate, 0);
+    playerA->open(pathA);
+    playerB = new SuperpoweredAdvancedAudioPlayer(&playerB, playerEventCallbackB, samplerate, 0);
+    playerB->open(pathB);
+    // playerC = new SuperpoweredAdvancedAudioPlayer(&playerC, playerEventCallbackC, samplerate, 0);
+    // playerC->open(pathC);
 
-    audioSystem = new SuperpoweredAndroidAudioIO(samplerate, buffersize, false, true, audioProcessing, this, -1, SL_ANDROID_STREAM_MEDIA, 0);
+    playerA->syncMode = SuperpoweredAdvancedAudioPlayerSyncMode_TempoAndBeat;
+    playerB->syncMode = SuperpoweredAdvancedAudioPlayerSyncMode_TempoAndBeat;
+
+    audioSystem = new SuperpoweredAndroidAudioIO(samplerate, buffersize, false, true, audioProcessing, this, -1, SL_ANDROID_STREAM_MEDIA, buffersize * 2);
 }
 
-SuperpoweredExample::~SuperpoweredExample() {
+SuperpoweredExample::~SuperpoweredExample()
+{
     delete audioSystem;
-    delete audioPlayer;
+    delete playerA;
+    delete playerB;
+    // delete playerC;
     free(stereoBuffer);
 }
 
-void SuperpoweredExample::onPlayPause(bool play) {
-    if (!play) {
-        audioPlayer->pause();
-    } else {
-        audioPlayer->play(false);
-        audioPlayer->setTempo(1.0f, true);
+void SuperpoweredExample::onPlayPause(bool play)
+{
+    if (!play)
+    {
+        playerA->pause(0.3);
+        playerB->pause(0.3);
+    }
+    else
+    {
+        playerA->play(false);
+        playerB->play(true);
+        //playerA->setTempo(1.0, true);
     };
-//    SuperpoweredCPU::setSustainedPerformanceMode(play); // <-- Important to prevent audio dropouts.
+    SuperpoweredCPU::setSustainedPerformanceMode(play); // <-- Important to prevent audio dropouts.
 }
 
 void SuperpoweredExample::open(const char *path)
 {
-    audioPlayer->open(path);
+    // playerA->open(path);
 }
 
 void SuperpoweredExample::onSeek()
 {
-    audioPlayer->setPosition(120000.4658f, true, false);
+    // playerA->setPosition(120000.4658, true, false);
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_SuperPoweredPlayer_SuperpoweredExample(JNIEnv *env, jobject instance, jint samplerate,  jint buffersize, jstring url, jstring localpath)
+extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_SuperPoweredPlayer_SuperpoweredExample(JNIEnv *env, jobject instance, jint samplerate,
+                                                                                                                   jint buffersize, jstring urlA, jstring urlB, jstring urlC,
+                                                                                                                   jstring localpath)
 {
-    const char *curl = env->GetStringUTFChars(url, JNI_FALSE);
+    const char *curlA = env->GetStringUTFChars(urlA, JNI_FALSE);
+    const char *curlB = env->GetStringUTFChars(urlB, JNI_FALSE);
+    const char *curlC = env->GetStringUTFChars(urlC, JNI_FALSE);
     const char *clocalpath = env->GetStringUTFChars(localpath, JNI_FALSE);
-    renderer = new SuperpoweredExample((unsigned int) samplerate, (unsigned int) buffersize, curl, clocalpath);
-    equalizer = new Superpowered3BandEQ((unsigned int) samplerate);
-    env->ReleaseStringUTFChars(url, curl);
+    renderer = new SuperpoweredExample((unsigned int) samplerate, (unsigned int) buffersize, curlA, curlB, curlC, clocalpath);
+    env->ReleaseStringUTFChars(urlA, curlA);
+    env->ReleaseStringUTFChars(urlB, curlB);
+    env->ReleaseStringUTFChars(urlC, curlC);
     env->ReleaseStringUTFChars(localpath, clocalpath);
 }
 
