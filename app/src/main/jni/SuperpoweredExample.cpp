@@ -11,6 +11,8 @@
 #include <Superpowered3BandEQ.h>
 
 #define TAG "SuperPoweredExample"
+#define T1 270242.494
+#define T2 31746.100
 
 static SuperpoweredExample *renderer = NULL;
 
@@ -21,8 +23,8 @@ static void playerEventCallbackA(void *clientData, SuperpoweredAdvancedAudioPlay
         __android_log_print(ANDROID_LOG_DEBUG, TAG, "File A loaded succesfully!");
         SuperpoweredAdvancedAudioPlayer *player = *((SuperpoweredAdvancedAudioPlayer **)clientData);
         player->setBpm(127.98);
-        player->setFirstBeatMs(270242.494);
-        player->setPosition(0, false, false);
+        player->setFirstBeatMs(T1);
+        player->setPosition(0, true, false);
     };
 }
 
@@ -33,8 +35,8 @@ static void playerEventCallbackB(void *clientData, SuperpoweredAdvancedAudioPlay
         __android_log_print(ANDROID_LOG_DEBUG, TAG, "File B loaded succesfully!");
         SuperpoweredAdvancedAudioPlayer *player = *((SuperpoweredAdvancedAudioPlayer **)clientData);
         player->setBpm(125.0);
-        player->setFirstBeatMs(31746.100);
-        player->setPosition(player->firstBeatMs, false, false);
+        player->setFirstBeatMs(T2);
+        player->setPosition(player->firstBeatMs, true, false);
     };
 }
 
@@ -48,24 +50,49 @@ bool SuperpoweredExample::process(short int *audioIO, unsigned int numberOfSampl
     double masterBpm = playerA->currentBpm;
     double msElapsedSinceLastBeatA = playerA->msElapsedSinceLastBeat; // When playerB needs it, playerA has already stepped this value, so save it now.
 
-    bool silence = !playerA->process(stereoBuffer, false, numberOfSamples, 1.0, masterBpm, playerB->msElapsedSinceLastBeat);
-    if (playerB->process(stereoBuffer, !silence, numberOfSamples, 1.0, masterBpm, msElapsedSinceLastBeatA))
+    __android_log_print(ANDROID_LOG_INFO, TAG, "playerA->bufferStartPercent = %f, playerA->bufferEndPercent = %f, playerA->waitingForBuffering = %d", playerA->bufferStartPercent, playerA->bufferEndPercent, playerA->waitingForBuffering);
+
+    // play playerB at the right moment:
+    if (playerA->bpm > 0 && playerA->positionMs > T1 - (60000 / playerA->bpm) / 4 && !playerB->playing)
     {
-        silence = false;
+        playerB->play(true);
+    }
+
+    // process and filters:
+    bool silence1 = !playerA->process(stereoBuffer1, false, numberOfSamples, 1.0, masterBpm); // , playerB->msElapsedSinceLastBeat
+    bool silence2 = !playerB->process(stereoBuffer2, false, numberOfSamples, 1.0, masterBpm, msElapsedSinceLastBeatA);
+    if (!silence2)
+    {
+        filter->process(stereoBuffer2, stereoBuffer2, numberOfSamples);
     }
 
     // the stereoBuffer is ready now, let's put the finished audio into the requested buffers :
-    if (!silence)
+    if (!silence1 || !silence2)
     {
-        SuperpoweredFloatToShortInt(stereoBuffer, audioIO, numberOfSamples);
+        if (silence2)
+        {
+            SuperpoweredFloatToShortInt(stereoBuffer1, audioIO, numberOfSamples);
+        }
+        else if (silence1)
+        {
+            SuperpoweredFloatToShortInt(stereoBuffer2, audioIO, numberOfSamples);
+        }
+        else
+        {
+            SuperpoweredAdd2(stereoBuffer1, stereoBuffer2, stereoBuffer, numberOfSamples * 2);
+            SuperpoweredFloatToShortInt(stereoBuffer, audioIO, numberOfSamples);
+        }
     }
-    return !silence;
+
+    return (!silence1 || !silence2);
 }
 
 SuperpoweredExample::SuperpoweredExample(unsigned int samplerate, unsigned int buffersize, const char *pathA, const char *pathB, const char *pathC, const char *localpath)
 {
     SuperpoweredAdvancedAudioPlayer::setTempFolder(localpath);
 
+    stereoBuffer1 = (float *)memalign(16, (buffersize * 8) + 64);
+    stereoBuffer2 = (float *)memalign(16, (buffersize * 8) + 64);
     stereoBuffer = (float *)memalign(16, (buffersize * 8) + 64);
 
     playerA = new SuperpoweredAdvancedAudioPlayer(&playerA , playerEventCallbackA, samplerate, 0);
@@ -78,6 +105,12 @@ SuperpoweredExample::SuperpoweredExample(unsigned int samplerate, unsigned int b
     playerA->syncMode = SuperpoweredAdvancedAudioPlayerSyncMode_TempoAndBeat;
     playerB->syncMode = SuperpoweredAdvancedAudioPlayerSyncMode_TempoAndBeat;
 
+    filter = new Superpowered3BandEQ(samplerate);
+    filter->bands[0] = 0;
+    filter->bands[1] = 1;
+    filter->bands[2] = 1;
+    filter->enable(true);
+
     audioSystem = new SuperpoweredAndroidAudioIO(samplerate, buffersize, false, true, audioProcessing, this, -1, SL_ANDROID_STREAM_MEDIA, buffersize * 2);
 }
 
@@ -87,6 +120,9 @@ SuperpoweredExample::~SuperpoweredExample()
     delete playerA;
     delete playerB;
     // delete playerC;
+    delete filter;
+    free(stereoBuffer1);
+    free(stereoBuffer2);
     free(stereoBuffer);
 }
 
@@ -100,7 +136,7 @@ void SuperpoweredExample::onPlayPause(bool play)
     else
     {
         playerA->play(false);
-        playerB->play(true);
+        //playerB->play(true);
         //playerA->setTempo(1.0, true);
     };
     SuperpoweredCPU::setSustainedPerformanceMode(play); // <-- Important to prevent audio dropouts.
@@ -113,7 +149,7 @@ void SuperpoweredExample::open(const char *path)
 
 void SuperpoweredExample::onSeek()
 {
-    // playerA->setPosition(120000.4658, true, false);
+    playerA->setPosition(265000, true, false);
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_SuperPoweredPlayer_SuperpoweredExample(JNIEnv *env, jobject instance, jint samplerate,

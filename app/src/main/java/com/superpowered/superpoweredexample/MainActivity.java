@@ -14,13 +14,11 @@ public class MainActivity extends AppCompatActivity
 	{
 		// TODO : *resume download and play si coupure internet
 		// TODO : comment lancer un second titre à une frame précise d'un premier titre ? (voir processMulti() / cachePosition() / setBpm() / setFirstBeatMs() / play(true) / audioStartMs / waitingForSyncMs)
-		// TODO : filtre 3 bandes
-		// TODO : comment connaître le niveau de téléchargement d'un titre en secondes à tout moment / comment savoir qu'un titre est complètement téléchargé ?
-		// TODO : comment connaître la position à tout instant (pour changement filtre et volume) ?
+		// TODO : comment connaître le niveau de téléchargement d'un titre en secondes à tout moment / comment savoir qu'un titre est complètement téléchargé ? (voir player->bufferStartPercent / player->bufferEndPercent / player->waitingForBuffering / player->fullyDownloadedFilePath non null)
 		// TODO : (volume : quel type ? multiplicateur d'amplitude ?)
 		
 		// TODO : thread séparé pour le lecteur audio
-		// TODO : tests transitions au tempo
+		// TODO : tests transitions au tempo (avec changement de tempo en cours de route)
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
