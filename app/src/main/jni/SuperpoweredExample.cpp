@@ -50,12 +50,14 @@ bool SuperpoweredExample::process(short int *audioIO, unsigned int numberOfSampl
     double masterBpm = playerA->currentBpm;
     double msElapsedSinceLastBeatA = playerA->msElapsedSinceLastBeat; // When playerB needs it, playerA has already stepped this value, so save it now.
 
-    __android_log_print(ANDROID_LOG_INFO, TAG, "playerA->bufferStartPercent = %f, playerA->bufferEndPercent = %f, playerA->waitingForBuffering = %d", playerA->bufferStartPercent, playerA->bufferEndPercent, playerA->waitingForBuffering);
+    __android_log_print(ANDROID_LOG_INFO, TAG, "playerA->positionMs = %f, T1 = %f, playerA->bufferEndPercent = %f", playerA->positionMs, T1, playerA->bufferEndPercent);
+    __android_log_print(ANDROID_LOG_INFO, TAG, "playerA->looping = %d", playerA->looping);
 
     // play playerB at the right moment:
-    if (playerA->bpm > 0 && playerA->positionMs > T1 - (60000 / playerA->bpm) / 4 && !playerB->playing)
+    if (playerA->bpm > 0 && playerA->positionMs > T1 && !playerB->playing)
     {
         playerB->play(true);
+        __android_log_print(ANDROID_LOG_WARN, TAG, "playerB->play(true)");
     }
 
     // process and filters:
@@ -63,7 +65,7 @@ bool SuperpoweredExample::process(short int *audioIO, unsigned int numberOfSampl
     bool silence2 = !playerB->process(stereoBuffer2, false, numberOfSamples, 1.0, masterBpm, msElapsedSinceLastBeatA);
     if (!silence2)
     {
-        filter->process(stereoBuffer2, stereoBuffer2, numberOfSamples);
+    //    filter->process(stereoBuffer2, stereoBuffer2, numberOfSamples);
     }
 
     // the stereoBuffer is ready now, let's put the finished audio into the requested buffers :
@@ -106,7 +108,7 @@ SuperpoweredExample::SuperpoweredExample(unsigned int samplerate, unsigned int b
     playerB->syncMode = SuperpoweredAdvancedAudioPlayerSyncMode_TempoAndBeat;
 
     filter = new Superpowered3BandEQ(samplerate);
-    filter->bands[0] = 0;
+    filter->bands[0] = 0.7;
     filter->bands[1] = 1;
     filter->bands[2] = 1;
     filter->enable(true);
@@ -130,8 +132,14 @@ void SuperpoweredExample::onPlayPause(bool play)
 {
     if (!play)
     {
-        playerA->pause(0.3);
-        playerB->pause(0.3);
+        if (playerA->playing)
+        {
+            playerA->pause(0.3);
+        }
+        if (playerB->playing)
+        {
+            playerB->pause(0.3);
+        }
     }
     else
     {

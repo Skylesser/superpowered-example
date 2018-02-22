@@ -59,12 +59,6 @@ class SuperPoweredPlayer
 		SuperpoweredExample(sampleRate, bufferSize, URL_A, URL_B, URL_C, repertoire.getAbsolutePath());
 	}
 	
-	void startPlayback()
-	{
-		playState = true;
-		onPlayPause(true);
-	}
-	
 	void togglePlayback()
 	{
 		playState = !playState;

@@ -13,25 +13,20 @@ public class MainActivity extends AppCompatActivity
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		// TODO : *resume download and play si coupure internet
-		// TODO : comment lancer un second titre à une frame précise d'un premier titre ? (voir processMulti() / cachePosition() / setBpm() / setFirstBeatMs() / play(true) / audioStartMs / waitingForSyncMs)
-		// TODO : comment connaître le niveau de téléchargement d'un titre en secondes à tout moment / comment savoir qu'un titre est complètement téléchargé ? (voir player->bufferStartPercent / player->bufferEndPercent / player->waitingForBuffering / player->fullyDownloadedFilePath non null)
+		// TODO : *comment connaître le niveau de téléchargement d'un titre en secondes à tout moment / comment savoir qu'un titre est complètement téléchargé ? (voir player->fullyDownloadedFilePath non null)
+		// TODO : *-> play ne fonctionne pas même si on remet une connexion internet / pause ne fonctionne pas si playerB est lancé plus tard (sauf si pause puis play sur playerA, ou si playerA reboucle) / play(false) retardé si on fait pause avant
+		// TODO : -> comment arrêter player si arrivé à la fin du titre ?
+		// TODO : -> légères variations de volumes si le son est accéléré
 		// TODO : (volume : quel type ? multiplicateur d'amplitude ?)
 		
 		// TODO : thread séparé pour le lecteur audio
-		// TODO : tests transitions au tempo (avec changement de tempo en cours de route)
+		// TODO : tests transitions au tempo (avec changement de tempo en cours de route) et enchaînements multiples
+		// TODO : télécharger depuis une position (voir open())
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
 		player = new SuperPoweredPlayer(this);
-	}
-	
-	public void onClickPlay(View view)
-	{
-		if (player != null)
-		{
-			player.startPlayback();
-		}
 	}
 	
 	public void onClickToggle(View view)
