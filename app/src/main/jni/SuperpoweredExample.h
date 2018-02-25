@@ -27,6 +27,9 @@ private:
     float *stereoBuffer1;
     float *stereoBuffer2;
     float *stereoBuffer;
+    bool isAActive;
+    bool isBActive;
+    bool isCActive;
 
 };
 

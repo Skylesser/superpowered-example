@@ -24,7 +24,8 @@ static void playerEventCallbackA(void *clientData, SuperpoweredAdvancedAudioPlay
         SuperpoweredAdvancedAudioPlayer *player = *((SuperpoweredAdvancedAudioPlayer **)clientData);
         player->setBpm(127.98);
         player->setFirstBeatMs(T1);
-        player->setPosition(0, true, false);
+        player->setPosition(60000, true, false);
+        player->setTempo(0.994, true);
     };
 }
 
@@ -54,8 +55,9 @@ bool SuperpoweredExample::process(short int *audioIO, unsigned int numberOfSampl
     __android_log_print(ANDROID_LOG_INFO, TAG, "playerA->looping = %d", playerA->looping);
 
     // play playerB at the right moment:
-    if (playerA->bpm > 0 && playerA->positionMs > T1 && !playerB->playing)
+    if (playerA->bpm > 0 && playerA->positionMs > T1 && !isBActive)
     {
+        isBActive = true;
         playerB->play(true);
         __android_log_print(ANDROID_LOG_WARN, TAG, "playerB->play(true)");
     }
@@ -65,7 +67,7 @@ bool SuperpoweredExample::process(short int *audioIO, unsigned int numberOfSampl
     bool silence2 = !playerB->process(stereoBuffer2, false, numberOfSamples, 1.0, masterBpm, msElapsedSinceLastBeatA);
     if (!silence2)
     {
-    //    filter->process(stereoBuffer2, stereoBuffer2, numberOfSamples);
+        filter->process(stereoBuffer2, stereoBuffer2, numberOfSamples);
     }
 
     // the stereoBuffer is ready now, let's put the finished audio into the requested buffers :
@@ -96,6 +98,10 @@ SuperpoweredExample::SuperpoweredExample(unsigned int samplerate, unsigned int b
     stereoBuffer1 = (float *)memalign(16, (buffersize * 8) + 64);
     stereoBuffer2 = (float *)memalign(16, (buffersize * 8) + 64);
     stereoBuffer = (float *)memalign(16, (buffersize * 8) + 64);
+
+    isAActive = true;
+    isBActive = false;
+    isCActive = false;
 
     playerA = new SuperpoweredAdvancedAudioPlayer(&playerA , playerEventCallbackA, samplerate, 0);
     playerA->open(pathA);
@@ -143,8 +149,14 @@ void SuperpoweredExample::onPlayPause(bool play)
     }
     else
     {
-        playerA->play(false);
-        //playerB->play(true);
+        if (isAActive)
+        {
+            playerA->play(false);
+        }
+        if (isBActive)
+        {
+            playerB->play(true);
+        }
         //playerA->setTempo(1.0, true);
     };
     SuperpoweredCPU::setSustainedPerformanceMode(play); // <-- Important to prevent audio dropouts.

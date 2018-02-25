@@ -12,15 +12,15 @@ public class MainActivity extends AppCompatActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		// TODO : *resume download and play si coupure internet
-		// TODO : *comment connaître le niveau de téléchargement d'un titre en secondes à tout moment / comment savoir qu'un titre est complètement téléchargé ? (voir player->fullyDownloadedFilePath non null)
-		// TODO : *-> play ne fonctionne pas même si on remet une connexion internet / pause ne fonctionne pas si playerB est lancé plus tard (sauf si pause puis play sur playerA, ou si playerA reboucle) / play(false) retardé si on fait pause avant
-		// TODO : -> comment arrêter player si arrivé à la fin du titre ?
-		// TODO : -> légères variations de volumes si le son est accéléré
-		// TODO : (volume : quel type ? multiplicateur d'amplitude ?)
+		// TODO : *-> resume download and play si coupure internet
+		// TODO : *-> comment connaître le niveau de téléchargement d'un titre en secondes à tout moment / comment savoir qu'un titre est complètement téléchargé ? (voir player->fullyDownloadedFilePath non null)
+		// TODO : *-> play ne fonctionne pas même si on remet une connexion internet / play(false) retardé si on fait pause avant
+		// TODO : -> comment arrêter le player si arrivé à la fin du titre ?
+		// TODO : -> légères variations de volumes si le son est accéléré en master tempo
+		// TODO : tests transitions au tempo (changement de tempo en cours de route / enchaînements multiples)
 		
+		// TODO : (volume : quel type ? multiplicateur d'amplitude ?)
 		// TODO : thread séparé pour le lecteur audio
-		// TODO : tests transitions au tempo (avec changement de tempo en cours de route) et enchaînements multiples
 		// TODO : télécharger depuis une position (voir open())
 		
 		super.onCreate(savedInstanceState);
