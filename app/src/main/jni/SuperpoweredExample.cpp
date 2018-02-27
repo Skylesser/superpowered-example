@@ -29,10 +29,10 @@ static void playerEventCallbackA(void *clientData, SuperpoweredAdvancedAudioPlay
     }
     else if (event == SuperpoweredAdvancedAudioPlayerEvent_EOF)
     {
-        // working example :
         __android_log_print(ANDROID_LOG_ERROR, TAG, "File A stopped!");
-        SuperpoweredAdvancedAudioPlayer *player = *((SuperpoweredAdvancedAudioPlayer **)clientData);
-        player->pause();
+//        SuperpoweredAdvancedAudioPlayer *player = *((SuperpoweredAdvancedAudioPlayer **)clientData);
+//        player->pause();
+        *((bool *)value) = true;
     }
 }
 
@@ -48,9 +48,8 @@ static void playerEventCallbackB(void *clientData, SuperpoweredAdvancedAudioPlay
     }
     else if (event == SuperpoweredAdvancedAudioPlayerEvent_EOF)
     {
-        // non-working example :
         __android_log_print(ANDROID_LOG_ERROR, TAG, "File B stopped!");
-        *((bool *)value) = false;
+        *((bool *)value) = true;
     }
 }
 
