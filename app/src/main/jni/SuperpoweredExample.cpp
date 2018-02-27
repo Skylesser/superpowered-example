@@ -26,7 +26,14 @@ static void playerEventCallbackA(void *clientData, SuperpoweredAdvancedAudioPlay
         player->setFirstBeatMs(T1);
         player->setPosition(60000, true, false);
         player->setTempo(0.994, true);
-    };
+    }
+    else if (event == SuperpoweredAdvancedAudioPlayerEvent_EOF)
+    {
+        // working example :
+        __android_log_print(ANDROID_LOG_ERROR, TAG, "File A stopped!");
+        SuperpoweredAdvancedAudioPlayer *player = *((SuperpoweredAdvancedAudioPlayer **)clientData);
+        player->pause();
+    }
 }
 
 static void playerEventCallbackB(void *clientData, SuperpoweredAdvancedAudioPlayerEvent event, void * __unused value)
@@ -38,7 +45,13 @@ static void playerEventCallbackB(void *clientData, SuperpoweredAdvancedAudioPlay
         player->setBpm(125.0);
         player->setFirstBeatMs(T2);
         player->setPosition(player->firstBeatMs, true, false);
-    };
+    }
+    else if (event == SuperpoweredAdvancedAudioPlayerEvent_EOF)
+    {
+        // non-working example :
+        __android_log_print(ANDROID_LOG_ERROR, TAG, "File B stopped!");
+        *((bool *)value) = false;
+    }
 }
 
 static bool audioProcessing(void *clientdata, short int *audioIO, int numberOfSamples, int __unused samplerate)
