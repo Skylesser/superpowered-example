@@ -59,6 +59,11 @@ class SuperPoweredPlayer
 		SuperpoweredExample(sampleRate, bufferSize, URL_A, URL_B, URL_C, repertoire.getAbsolutePath());
 	}
 	
+	void openFile()
+	{
+		open("http://www.wezeejay.fr/audio/7.mp3");
+	}
+	
 	void togglePlayback()
 	{
 		playState = !playState;
@@ -71,9 +76,15 @@ class SuperPoweredPlayer
 		onSeek();
 	}
 	
+	void stopDownload()
+	{
+		onStopDownload(URL_C);
+	}
+	
 	private native void SuperpoweredExample(int samplerate, int buffersize, String urlA, String urlB, String urlC, String localPath);
 	private native void onPlayPause(boolean play);
 	private native void open(String url);
 	private native void onSeek();
+	private native void onStopDownload(String url);
 	
 }

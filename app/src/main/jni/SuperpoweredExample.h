@@ -17,6 +17,7 @@ public:
     void onPlayPause(bool play);
     void open(const char *path);
     void onSeek();
+	void onStopDownload(const char *path);
 
 private:
     SuperpoweredAndroidAudioIO *audioSystem;

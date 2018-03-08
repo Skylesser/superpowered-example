@@ -24,12 +24,25 @@ static void playerEventCallbackA(void *clientData, SuperpoweredAdvancedAudioPlay
         SuperpoweredAdvancedAudioPlayer *player = *((SuperpoweredAdvancedAudioPlayer **)clientData);
         player->setBpm(127.98);
         player->setFirstBeatMs(T1);
-        player->setPosition(60000, true, false);
+        //player->setPosition(60000, true, false);
+        player->setPosition(0, true, false);
         player->setTempo(0.994, true);
+    }
+    else if (event == SuperpoweredAdvancedAudioPlayerEvent_LoadError)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, TAG, "File A error loading 1");
+    }
+    else if (event == SuperpoweredAdvancedAudioPlayerEvent_HLSNetworkError)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, TAG, "File A error loading 2");
+    }
+    else if (event == SuperpoweredAdvancedAudioPlayerEvent_ProgressiveDownloadError)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, TAG, "File A error loading 3");
     }
     else if (event == SuperpoweredAdvancedAudioPlayerEvent_EOF)
     {
-        __android_log_print(ANDROID_LOG_ERROR, TAG, "File A stopped!");
+        __android_log_print(ANDROID_LOG_INFO, TAG, "File A stopped!");
 //        SuperpoweredAdvancedAudioPlayer *player = *((SuperpoweredAdvancedAudioPlayer **)clientData);
 //        player->pause();
         *((bool *)value) = true;
@@ -63,8 +76,7 @@ bool SuperpoweredExample::process(short int *audioIO, unsigned int numberOfSampl
     double masterBpm = playerA->currentBpm;
     double msElapsedSinceLastBeatA = playerA->msElapsedSinceLastBeat; // When playerB needs it, playerA has already stepped this value, so save it now.
 
-    __android_log_print(ANDROID_LOG_INFO, TAG, "playerA->positionMs = %f, T1 = %f, playerA->bufferEndPercent = %f", playerA->positionMs, T1, playerA->bufferEndPercent);
-    __android_log_print(ANDROID_LOG_INFO, TAG, "playerA->looping = %d", playerA->looping);
+    //__android_log_print(ANDROID_LOG_INFO, TAG, "playerA->positionMs = %f, T1 = %f, playerA->bufferEndPercent = %f, playerA->fullyDownloadedFilePath = %s", playerA->positionMs, T1, playerA->bufferEndPercent, playerA->fullyDownloadedFilePath);
 
     // play playerB at the right moment:
     if (playerA->bpm > 0 && playerA->positionMs > T1 && !isBActive)
@@ -118,7 +130,7 @@ SuperpoweredExample::SuperpoweredExample(unsigned int samplerate, unsigned int b
     playerA = new SuperpoweredAdvancedAudioPlayer(&playerA , playerEventCallbackA, samplerate, 0);
     playerA->open(pathA);
     playerB = new SuperpoweredAdvancedAudioPlayer(&playerB, playerEventCallbackB, samplerate, 0);
-    playerB->open(pathB);
+    // playerB->open(pathB);
     // playerC = new SuperpoweredAdvancedAudioPlayer(&playerC, playerEventCallbackC, samplerate, 0);
     // playerC->open(pathC);
 
@@ -132,6 +144,8 @@ SuperpoweredExample::SuperpoweredExample(unsigned int samplerate, unsigned int b
     filter->enable(true);
 
     audioSystem = new SuperpoweredAndroidAudioIO(samplerate, buffersize, false, true, audioProcessing, this, -1, SL_ANDROID_STREAM_MEDIA, buffersize * 2);
+	
+	__android_log_print(ANDROID_LOG_INFO, TAG, "SuperpoweredExample started");
 }
 
 SuperpoweredExample::~SuperpoweredExample()
@@ -169,20 +183,34 @@ void SuperpoweredExample::onPlayPause(bool play)
         {
             playerB->play(true);
         }
-        //playerA->setTempo(1.0, true);
     };
     SuperpoweredCPU::setSustainedPerformanceMode(play); // <-- Important to prevent audio dropouts.
 }
 
 void SuperpoweredExample::open(const char *path)
 {
-    // playerA->open(path);
+    playerA->open(path);
 }
 
 void SuperpoweredExample::onSeek()
 {
     playerA->setPosition(265000, true, false);
 }
+
+void SuperpoweredExample::onStopDownload(const char *path)
+{
+	if (isAActive)
+	{
+		isAActive = false;
+		playerA->open(NULL);
+	}
+	else
+	{
+		isAActive = true;
+		playerA->open(path);
+	}
+}
+
 
 extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_SuperPoweredPlayer_SuperpoweredExample(JNIEnv *env, jobject instance, jint samplerate,
                                                                                                                    jint buffersize, jstring urlA, jstring urlB, jstring urlC,
@@ -213,6 +241,13 @@ extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_Supe
 
 extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_SuperPoweredPlayer_onSeek(JNIEnv *env, jobject instance)
 {
-    renderer->onSeek();
+	renderer->onSeek();
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_SuperPoweredPlayer_onStopDownload(JNIEnv *env, jobject instance, jstring url)
+{
+	const char *curl = env->GetStringUTFChars(url, JNI_FALSE);
+	renderer->onStopDownload(curl);
+	env->ReleaseStringUTFChars(url, curl);
 }
 
