@@ -1,7 +1,9 @@
 package com.superpowered.superpoweredexample;
 
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 
 public class MainActivity extends AppCompatActivity
@@ -31,7 +33,21 @@ public class MainActivity extends AppCompatActivity
 	{
 		if (player != null)
 		{
-			player.openFile();
+			new CountDownTimer(5000, 50) {
+				
+				@Override
+				public void onTick(long millisUntilFinished)
+				{
+					player.openFile();
+				}
+				
+				@Override
+				public void onFinish()
+				{
+					Log.e("SuperPoweredExample", "stress open test finished");
+				}
+			}.start();
+			//player.openFile();
 		}
 	}
 	

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.media.AudioManager;
 import android.os.Build;
+import android.util.Log;
 
 import java.io.File;
 
@@ -61,6 +62,7 @@ class SuperPoweredPlayer
 	
 	void openFile()
 	{
+		Log.w("SuperPoweredExample", "open");
 		open("http://www.wezeejay.fr/audio/7.mp3");
 	}
 	

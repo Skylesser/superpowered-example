@@ -15,6 +15,7 @@
 #define T2 31746.100
 
 static SuperpoweredExample *renderer = NULL;
+static bool lockAOpen;
 
 static void playerEventCallbackA(void *clientData, SuperpoweredAdvancedAudioPlayerEvent event, void * __unused value)
 {
@@ -27,18 +28,22 @@ static void playerEventCallbackA(void *clientData, SuperpoweredAdvancedAudioPlay
         //player->setPosition(60000, true, false);
         player->setPosition(0, true, false);
         player->setTempo(0.994, true);
+	    lockAOpen = false;
     }
     else if (event == SuperpoweredAdvancedAudioPlayerEvent_LoadError)
     {
         __android_log_print(ANDROID_LOG_ERROR, TAG, "File A error loading 1");
+	    lockAOpen = false;
     }
     else if (event == SuperpoweredAdvancedAudioPlayerEvent_HLSNetworkError)
     {
         __android_log_print(ANDROID_LOG_ERROR, TAG, "File A error loading 2");
+	    lockAOpen = false;
     }
     else if (event == SuperpoweredAdvancedAudioPlayerEvent_ProgressiveDownloadError)
     {
         __android_log_print(ANDROID_LOG_ERROR, TAG, "File A error loading 3");
+	    lockAOpen = false;
     }
     else if (event == SuperpoweredAdvancedAudioPlayerEvent_EOF)
     {
@@ -126,9 +131,11 @@ SuperpoweredExample::SuperpoweredExample(unsigned int samplerate, unsigned int b
     isAActive = true;
     isBActive = false;
     isCActive = false;
+	
+	lockAOpen = false;
 
     playerA = new SuperpoweredAdvancedAudioPlayer(&playerA , playerEventCallbackA, samplerate, 0);
-    playerA->open(pathA);
+    //playerA->open(pathA);
     playerB = new SuperpoweredAdvancedAudioPlayer(&playerB, playerEventCallbackB, samplerate, 0);
     // playerB->open(pathB);
     // playerC = new SuperpoweredAdvancedAudioPlayer(&playerC, playerEventCallbackC, samplerate, 0);
@@ -189,7 +196,11 @@ void SuperpoweredExample::onPlayPause(bool play)
 
 void SuperpoweredExample::open(const char *path)
 {
-    playerA->open(path);
+	if (!lockAOpen)
+	{
+		lockAOpen = true;
+		playerA->open(path);
+	}
 }
 
 void SuperpoweredExample::onSeek()
