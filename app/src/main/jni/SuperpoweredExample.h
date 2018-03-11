@@ -14,23 +14,14 @@ public:
     ~SuperpoweredExample();
 
     bool process(short int *output, unsigned int numberOfSamples);
-    void onPlayPause(bool play);
-    void open(const char *path);
-    void onSeek();
-	void onStopDownload(const char *path);
+    void open(const char *path, int id);
 
 private:
     SuperpoweredAndroidAudioIO *audioSystem;
     SuperpoweredAdvancedAudioPlayer *playerA;
     SuperpoweredAdvancedAudioPlayer *playerB;
     SuperpoweredAdvancedAudioPlayer *playerC;
-    Superpowered3BandEQ *filter;
-    float *stereoBuffer1;
-    float *stereoBuffer2;
-    float *stereoBuffer;
-    bool isAActive;
-    bool isBActive;
-    bool isCActive;
+	SuperpoweredAdvancedAudioPlayer *playerT;
 
 };
 

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.media.AudioManager;
 import android.os.Build;
-import android.util.Log;
 
 import java.io.File;
 
@@ -20,8 +19,6 @@ class SuperPoweredPlayer
 	{
 		System.loadLibrary("SuperpoweredExample");
 	}
-	
-	private boolean playState = false;
 	
 	public SuperPoweredPlayer(Context context)
 	{
@@ -60,33 +57,13 @@ class SuperPoweredPlayer
 		SuperpoweredExample(sampleRate, bufferSize, URL_A, URL_B, URL_C, repertoire.getAbsolutePath());
 	}
 	
-	void openFile()
+	void openFile(int playerID, int id)
 	{
-		Log.w("SuperPoweredExample", "open");
-		open("http://www.wezeejay.fr/audio/7.mp3");
-	}
-	
-	void togglePlayback()
-	{
-		playState = !playState;
-		onPlayPause(playState);
-	}
-	
-	void seek()
-	{
-		playState = false;
-		onSeek();
-	}
-	
-	void stopDownload()
-	{
-		onStopDownload(URL_C);
+		String url = "http://www.wezeejay.fr/audio/" + id + ".mp3";
+		open(url, playerID);
 	}
 	
 	private native void SuperpoweredExample(int samplerate, int buffersize, String urlA, String urlB, String urlC, String localPath);
-	private native void onPlayPause(boolean play);
-	private native void open(String url);
-	private native void onSeek();
-	private native void onStopDownload(String url);
+	private native void open(String url, int id);
 	
 }
