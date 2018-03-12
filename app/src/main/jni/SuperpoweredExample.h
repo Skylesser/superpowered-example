@@ -21,7 +21,9 @@ private:
     SuperpoweredAdvancedAudioPlayer *playerA;
     SuperpoweredAdvancedAudioPlayer *playerB;
     SuperpoweredAdvancedAudioPlayer *playerC;
-	SuperpoweredAdvancedAudioPlayer *playerT;
+	float *stereoBuffer1;
+	float *stereoBuffer2;
+	float *stereoBuffer3;
 
 };
 

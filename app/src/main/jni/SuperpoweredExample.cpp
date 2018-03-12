@@ -1,6 +1,7 @@
 
 #include <jni.h>
 #include <string>
+#include <SuperpoweredSimple.h>
 #include "SuperpoweredExample.h"
 #include <malloc.h>
 #include <android/log.h>
@@ -43,19 +44,44 @@ static void playerEventCallbackA(void *clientData, SuperpoweredAdvancedAudioPlay
 
 static bool audioProcessing(void *clientdata, short int *audioIO, int numberOfSamples, int __unused samplerate)
 {
-	return true;
+	return ((SuperpoweredExample *) clientdata)->process(audioIO, (unsigned int) numberOfSamples);
+}
+
+bool SuperpoweredExample::process(short int *audioIO, unsigned int numberOfSamples)
+{
+	bool silenceA = !playerA->process(stereoBuffer1, false, numberOfSamples);
+	bool silenceB = !playerB->process(stereoBuffer2, false, numberOfSamples);
+	bool silenceC = !playerC->process(stereoBuffer3, false, numberOfSamples);
+	
+	if (!silenceA)
+	{
+		SuperpoweredFloatToShortInt(stereoBuffer1, audioIO, numberOfSamples);
+	}
+	if (!silenceB)
+	{
+		SuperpoweredFloatToShortInt(stereoBuffer2, audioIO, numberOfSamples);
+	}
+	if (!silenceC)
+	{
+		SuperpoweredFloatToShortInt(stereoBuffer3, audioIO, numberOfSamples);
+	}
+	
+	return (!silenceA || !silenceB || !silenceC);
 }
 
 SuperpoweredExample::SuperpoweredExample(unsigned int samplerate, unsigned int buffersize, const char *pathA, const char *pathB, const char *pathC, const char *localpath)
 {
     SuperpoweredAdvancedAudioPlayer::setTempFolder(localpath);
-
+	
+	stereoBuffer1 = (float *) memalign(16, (buffersize * 8) + 64);
+	stereoBuffer2 = (float *) memalign(16, (buffersize * 8) + 64);
+	stereoBuffer3 = (float *) memalign(16, (buffersize * 8) + 64);
+	
 	lockAOpen = false;
 
     playerA = new SuperpoweredAdvancedAudioPlayer(&playerA, playerEventCallbackA, samplerate, 0);
     playerB = new SuperpoweredAdvancedAudioPlayer(&playerB, playerEventCallbackA, samplerate, 0);
     playerC = new SuperpoweredAdvancedAudioPlayer(&playerC, playerEventCallbackA, samplerate, 0);
-	playerT = new SuperpoweredAdvancedAudioPlayer(&playerT, playerEventCallbackA, samplerate, 0);
 
     audioSystem = new SuperpoweredAndroidAudioIO(samplerate, buffersize, false, true, audioProcessing, this, -1, SL_ANDROID_STREAM_MEDIA, buffersize * 2);
 	
@@ -68,7 +94,9 @@ SuperpoweredExample::~SuperpoweredExample()
     delete playerA;
     delete playerB;
 	delete playerC;
-	delete playerT;
+	free(stereoBuffer1);
+	free(stereoBuffer2);
+	free(stereoBuffer3);
 }
 
 void SuperpoweredExample::open(const char *path, int id)
