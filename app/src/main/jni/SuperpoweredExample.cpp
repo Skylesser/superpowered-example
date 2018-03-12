@@ -52,14 +52,10 @@ SuperpoweredExample::SuperpoweredExample(unsigned int samplerate, unsigned int b
 
 	lockAOpen = false;
 
-    playerA = new SuperpoweredAdvancedAudioPlayer(&playerA , playerEventCallbackA, samplerate, 0);
+    playerA = new SuperpoweredAdvancedAudioPlayer(&playerA, playerEventCallbackA, samplerate, 0);
     playerB = new SuperpoweredAdvancedAudioPlayer(&playerB, playerEventCallbackA, samplerate, 0);
     playerC = new SuperpoweredAdvancedAudioPlayer(&playerC, playerEventCallbackA, samplerate, 0);
 	playerT = new SuperpoweredAdvancedAudioPlayer(&playerT, playerEventCallbackA, samplerate, 0);
-
-    playerA->syncMode = SuperpoweredAdvancedAudioPlayerSyncMode_TempoAndBeat;
-	playerB->syncMode = SuperpoweredAdvancedAudioPlayerSyncMode_TempoAndBeat;
-	playerC->syncMode = SuperpoweredAdvancedAudioPlayerSyncMode_TempoAndBeat;
 
     audioSystem = new SuperpoweredAndroidAudioIO(samplerate, buffersize, false, true, audioProcessing, this, -1, SL_ANDROID_STREAM_MEDIA, buffersize * 2);
 	
