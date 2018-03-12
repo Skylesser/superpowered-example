@@ -14,7 +14,7 @@ public:
     ~SuperpoweredExample();
 
     bool process(short int *output, unsigned int numberOfSamples);
-    void open(const char *path, int id);
+    void open();
 
 private:
     SuperpoweredAndroidAudioIO *audioSystem;

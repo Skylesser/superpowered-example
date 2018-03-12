@@ -11,29 +11,30 @@
 #define TAG "SuperPoweredExample"
 
 static SuperpoweredExample *renderer = NULL;
-static bool lockAOpen;
+static bool lockOpen;
+static int step = 0;
 
 static void playerEventCallbackA(void *clientData, SuperpoweredAdvancedAudioPlayerEvent event, void * __unused value)
 {
     if (event == SuperpoweredAdvancedAudioPlayerEvent_LoadSuccess)
     {
         __android_log_print(ANDROID_LOG_DEBUG, TAG, "File loaded succesfully!");
-	    lockAOpen = false;
+	    lockOpen = false;
     }
     else if (event == SuperpoweredAdvancedAudioPlayerEvent_LoadError)
     {
         __android_log_print(ANDROID_LOG_ERROR, TAG, "File error loading 1");
-	    lockAOpen = false;
+	    lockOpen = false;
     }
     else if (event == SuperpoweredAdvancedAudioPlayerEvent_HLSNetworkError)
     {
         __android_log_print(ANDROID_LOG_ERROR, TAG, "File error loading 2");
-	    lockAOpen = false;
+	    lockOpen = false;
     }
     else if (event == SuperpoweredAdvancedAudioPlayerEvent_ProgressiveDownloadError)
     {
         __android_log_print(ANDROID_LOG_ERROR, TAG, "File error loading 3");
-	    lockAOpen = false;
+	    lockOpen = false;
     }
     else if (event == SuperpoweredAdvancedAudioPlayerEvent_EOF)
     {
@@ -49,10 +50,73 @@ static bool audioProcessing(void *clientdata, short int *audioIO, int numberOfSa
 
 bool SuperpoweredExample::process(short int *audioIO, unsigned int numberOfSamples)
 {
+	// download sequence:
+	if (step == 1)
+	{
+		step++;
+		if (!lockOpen)
+		{
+			lockOpen = true;
+			__android_log_print(ANDROID_LOG_INFO, TAG, "playerA->open(http://www.wezeejay.fr/audio/17.mp3)");
+			playerA->open("http://www.wezeejay.fr/audio/17.mp3");
+		}
+	}
+	else if (step == 2)
+	{
+		if (playerA->fullyDownloadedFilePath != NULL)
+		{
+			step++;
+		}
+	}
+	else if (step == 3)
+	{
+		step++;
+		if (!lockOpen)
+		{
+			lockOpen = true;
+			__android_log_print(ANDROID_LOG_INFO, TAG, "playerB->open(http://www.wezeejay.fr/audio/38.mp3)");
+			playerB->open("http://www.wezeejay.fr/audio/38.mp3");
+		}
+	}
+	else if (step == 4)
+	{
+		if (playerB->fullyDownloadedFilePath != NULL)
+		{
+			step++;
+		}
+	}
+	else if (step == 5)
+	{
+		step++;
+		if (!lockOpen)
+		{
+			lockOpen = true;
+			__android_log_print(ANDROID_LOG_INFO, TAG, "playerC->open(http://www.wezeejay.fr/audio/2.mp3)");
+			playerC->open("http://www.wezeejay.fr/audio/2.mp3");
+		}
+	}
+	else if (step == 6)
+	{
+		if (playerC->fullyDownloadedFilePath != NULL)
+		{
+			step++;
+		}
+	}
+	else if (step == 7)
+	{
+		step++;
+		if (!lockOpen)
+		{
+			lockOpen = true;
+			__android_log_print(ANDROID_LOG_INFO, TAG, "playerB->open(http://www.wezeejay.fr/audio/35.mp3)");
+			playerB->open("http://www.wezeejay.fr/audio/35.mp3");
+		}
+	}
+	
+	// process:
 	bool silenceA = !playerA->process(stereoBuffer1, false, numberOfSamples);
 	bool silenceB = !playerB->process(stereoBuffer2, false, numberOfSamples);
 	bool silenceC = !playerC->process(stereoBuffer3, false, numberOfSamples);
-	
 	if (!silenceA)
 	{
 		SuperpoweredFloatToShortInt(stereoBuffer1, audioIO, numberOfSamples);
@@ -65,7 +129,6 @@ bool SuperpoweredExample::process(short int *audioIO, unsigned int numberOfSampl
 	{
 		SuperpoweredFloatToShortInt(stereoBuffer3, audioIO, numberOfSamples);
 	}
-	
 	return (!silenceA || !silenceB || !silenceC);
 }
 
@@ -77,13 +140,17 @@ SuperpoweredExample::SuperpoweredExample(unsigned int samplerate, unsigned int b
 	stereoBuffer2 = (float *) memalign(16, (buffersize * 8) + 64);
 	stereoBuffer3 = (float *) memalign(16, (buffersize * 8) + 64);
 	
-	lockAOpen = false;
+	lockOpen = false;
 
     playerA = new SuperpoweredAdvancedAudioPlayer(&playerA, playerEventCallbackA, samplerate, 0);
     playerB = new SuperpoweredAdvancedAudioPlayer(&playerB, playerEventCallbackA, samplerate, 0);
     playerC = new SuperpoweredAdvancedAudioPlayer(&playerC, playerEventCallbackA, samplerate, 0);
-
-    audioSystem = new SuperpoweredAndroidAudioIO(samplerate, buffersize, false, true, audioProcessing, this, -1, SL_ANDROID_STREAM_MEDIA, buffersize * 2);
+	
+	playerA->syncMode = SuperpoweredAdvancedAudioPlayerSyncMode_TempoAndBeat;
+	playerB->syncMode = SuperpoweredAdvancedAudioPlayerSyncMode_TempoAndBeat;
+	playerC->syncMode = SuperpoweredAdvancedAudioPlayerSyncMode_TempoAndBeat;
+	
+	audioSystem = new SuperpoweredAndroidAudioIO(samplerate, buffersize, false, true, audioProcessing, this, -1, SL_ANDROID_STREAM_MEDIA, buffersize * 2);
 	
 	__android_log_print(ANDROID_LOG_INFO, TAG, "SuperpoweredExample started");
 }
@@ -99,29 +166,10 @@ SuperpoweredExample::~SuperpoweredExample()
 	free(stereoBuffer3);
 }
 
-void SuperpoweredExample::open(const char *path, int id)
+void SuperpoweredExample::open()
 {
-	if (!lockAOpen)
-	{
-		__android_log_print(ANDROID_LOG_INFO, TAG, "open %d url = %s", id, path);
-		lockAOpen = true;
-		if (id == 0)
-		{
-			playerA->open(path);
-		}
-		else if (id == 1)
-		{
-			playerB->open(path);
-		}
-		else if (id == 2)
-		{
-			playerC->open(path);
-		}
-	}
-	else
-	{
-		__android_log_print(ANDROID_LOG_WARN, TAG, "open %d url = %s locked!", id, path);
-	}
+	// init download sequence in SuperpoweredExample::process():
+	step++;
 }
 
 
@@ -140,9 +188,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_Supe
     env->ReleaseStringUTFChars(localpath, clocalpath);
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_SuperPoweredPlayer_open(JNIEnv *env, jobject instance, jstring url, jint id)
+extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_SuperPoweredPlayer_open(JNIEnv *env, jobject instance)
 {
-    const char *curl = env->GetStringUTFChars(url, JNI_FALSE);
-    renderer->open(curl, id);
-    env->ReleaseStringUTFChars(url, curl);
+    renderer->open();
 }

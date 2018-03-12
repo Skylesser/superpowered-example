@@ -1,7 +1,6 @@
 package com.superpowered.superpoweredexample;
 
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -10,7 +9,6 @@ public class MainActivity extends AppCompatActivity
 {
 	
 	private SuperPoweredPlayer player = null;
-	private int a = 0;
 	
 	
 	@Override
@@ -35,38 +33,8 @@ public class MainActivity extends AppCompatActivity
 	{
 		if (player != null)
 		{
-			Log.d("SuperPoweredExample", "stress open test start...");
-			new CountDownTimer(300000, 8000) {
-				
-				@Override
-				public void onTick(long millisUntilFinished)
-				{
-					if (a == 0)
-					{
-						player.openFile(0, 17);
-					}
-					else if (a == 1)
-					{
-						player.openFile(1, 38);
-					}
-					else if (a == 2)
-					{
-						player.openFile(2, 2);
-					}
-					else
-					{
-						player.openFile(2, 35);
-					}
-					a++;
-					Log.i("SuperPoweredExample", "loop #" + a);
-				}
-				
-				@Override
-				public void onFinish()
-				{
-					Log.e("SuperPoweredExample", "stress open test finished");
-				}
-			}.start();
+			Log.d("SuperPoweredExample", "open test start...");
+			player.openSequence();
 		}
 	}
 	
