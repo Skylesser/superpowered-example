@@ -62,7 +62,13 @@ class SuperPoweredPlayer
 		open();
 	}
 	
+	void checkSequence()
+	{
+		check();
+	}
+	
 	private native void SuperpoweredExample(int samplerate, int buffersize, String urlA, String urlB, String urlC, String localPath);
 	private native void open();
+	private native void check();
 	
 }

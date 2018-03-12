@@ -50,69 +50,6 @@ static bool audioProcessing(void *clientdata, short int *audioIO, int numberOfSa
 
 bool SuperpoweredExample::process(short int *audioIO, unsigned int numberOfSamples)
 {
-	// download sequence:
-	if (step == 1)
-	{
-		step++;
-		if (!lockOpen)
-		{
-			lockOpen = true;
-			__android_log_print(ANDROID_LOG_INFO, TAG, "playerA->open(http://www.wezeejay.fr/audio/17.mp3)");
-			playerA->open("http://www.wezeejay.fr/audio/17.mp3");
-		}
-	}
-	else if (step == 2)
-	{
-		if (playerA->fullyDownloadedFilePath != NULL)
-		{
-			step++;
-		}
-	}
-	else if (step == 3)
-	{
-		step++;
-		if (!lockOpen)
-		{
-			lockOpen = true;
-			__android_log_print(ANDROID_LOG_INFO, TAG, "playerB->open(http://www.wezeejay.fr/audio/38.mp3)");
-			playerB->open("http://www.wezeejay.fr/audio/38.mp3");
-		}
-	}
-	else if (step == 4)
-	{
-		if (playerB->fullyDownloadedFilePath != NULL)
-		{
-			step++;
-		}
-	}
-	else if (step == 5)
-	{
-		step++;
-		if (!lockOpen)
-		{
-			lockOpen = true;
-			__android_log_print(ANDROID_LOG_INFO, TAG, "playerC->open(http://www.wezeejay.fr/audio/2.mp3)");
-			playerC->open("http://www.wezeejay.fr/audio/2.mp3");
-		}
-	}
-	else if (step == 6)
-	{
-		if (playerC->fullyDownloadedFilePath != NULL)
-		{
-			step++;
-		}
-	}
-	else if (step == 7)
-	{
-		step++;
-		if (!lockOpen)
-		{
-			lockOpen = true;
-			__android_log_print(ANDROID_LOG_INFO, TAG, "playerB->open(http://www.wezeejay.fr/audio/35.mp3)");
-			playerB->open("http://www.wezeejay.fr/audio/35.mp3");
-		}
-	}
-	
 	// process:
 	bool silenceA = !playerA->process(stereoBuffer1, false, numberOfSamples);
 	bool silenceB = !playerB->process(stereoBuffer2, false, numberOfSamples);
@@ -169,7 +106,86 @@ SuperpoweredExample::~SuperpoweredExample()
 void SuperpoweredExample::open()
 {
 	// init download sequence in SuperpoweredExample::process():
-	step++;
+	step = 1;
+}
+
+void SuperpoweredExample::check()
+{
+	// download sequence:
+	if (step == 1)
+	{
+		step++;
+		if (!lockOpen)
+		{
+			lockOpen = true;
+			__android_log_print(ANDROID_LOG_INFO, TAG, "playerA->open(http://www.wezeejay.fr/audio/17.mp3)");
+			playerA->open("http://www.wezeejay.fr/audio/17.mp3");
+		}
+	}
+	else if (step == 2)
+	{
+		if (playerA->fullyDownloadedFilePath != NULL)
+		{
+			step++;
+			__android_log_print(ANDROID_LOG_DEBUG, TAG, "playerA complete!");
+		}
+	}
+	else if (step == 3)
+	{
+		step++;
+		if (!lockOpen)
+		{
+			lockOpen = true;
+//			__android_log_print(ANDROID_LOG_INFO, TAG, "playerB->open(http://www.wezeejay.fr/audio/38.mp3)");
+//			playerB->open("http://www.wezeejay.fr/audio/38.mp3");
+			__android_log_print(ANDROID_LOG_INFO, TAG, "playerA->open(http://www.wezeejay.fr/audio/17.mp3)");
+			playerA->open("http://www.wezeejay.fr/audio/17.mp3");
+		}
+	}
+	else if (step == 4)
+	{
+		if (playerB->fullyDownloadedFilePath != NULL)
+		{
+			step++;
+			__android_log_print(ANDROID_LOG_DEBUG, TAG, "playerB complete!");
+		}
+	}
+	else if (step == 5)
+	{
+		step++;
+		if (!lockOpen)
+		{
+			lockOpen = true;
+			__android_log_print(ANDROID_LOG_INFO, TAG, "playerC->open(http://www.wezeejay.fr/audio/2.mp3)");
+			playerC->open("http://www.wezeejay.fr/audio/2.mp3");
+		}
+	}
+	else if (step == 6)
+	{
+		if (playerC->fullyDownloadedFilePath != NULL)
+		{
+			step++;
+			__android_log_print(ANDROID_LOG_DEBUG, TAG, "playerC complete!");
+		}
+	}
+	else if (step == 7)
+	{
+		step++;
+		if (!lockOpen)
+		{
+			lockOpen = true;
+			__android_log_print(ANDROID_LOG_INFO, TAG, "playerB->open(http://www.wezeejay.fr/audio/35.mp3)");
+			playerB->open("http://www.wezeejay.fr/audio/35.mp3");
+		}
+	}
+	else if (step == 8)
+	{
+		if (playerB->fullyDownloadedFilePath != NULL)
+		{
+			step++;
+			__android_log_print(ANDROID_LOG_DEBUG, TAG, "playerB complete!");
+		}
+	}
 }
 
 
@@ -190,5 +206,10 @@ extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_Supe
 
 extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_SuperPoweredPlayer_open(JNIEnv *env, jobject instance)
 {
-    renderer->open();
+	renderer->open();
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_SuperPoweredPlayer_check(JNIEnv *env, jobject instance)
+{
+	renderer->check();
 }
