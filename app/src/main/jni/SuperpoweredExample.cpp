@@ -53,20 +53,21 @@ bool SuperpoweredExample::process(short int *audioIO, unsigned int numberOfSampl
 	// process:
 	bool silenceA = !playerA->process(stereoBuffer1, false, numberOfSamples);
 	bool silenceB = !playerB->process(stereoBuffer2, false, numberOfSamples);
-	bool silenceC = !playerC->process(stereoBuffer3, false, numberOfSamples);
-	if (!silenceA)
-	{
-		SuperpoweredFloatToShortInt(stereoBuffer1, audioIO, numberOfSamples);
-	}
-	if (!silenceB)
-	{
-		SuperpoweredFloatToShortInt(stereoBuffer2, audioIO, numberOfSamples);
-	}
-	if (!silenceC)
-	{
-		SuperpoweredFloatToShortInt(stereoBuffer3, audioIO, numberOfSamples);
-	}
-	return (!silenceA || !silenceB || !silenceC);
+//	bool silenceC = !playerC->process(stereoBuffer3, false, numberOfSamples);
+//	if (!silenceA)
+//	{
+//		SuperpoweredFloatToShortInt(stereoBuffer1, audioIO, numberOfSamples);
+//	}
+//	if (!silenceB)
+//	{
+//		SuperpoweredFloatToShortInt(stereoBuffer2, audioIO, numberOfSamples);
+//	}
+//	if (!silenceC)
+//	{
+//		SuperpoweredFloatToShortInt(stereoBuffer3, audioIO, numberOfSamples);
+//	}
+//	return (!silenceA || !silenceB || !silenceC);
+	return false;
 }
 
 SuperpoweredExample::SuperpoweredExample(unsigned int samplerate, unsigned int buffersize, const char *pathA, const char *pathB, const char *pathC, const char *localpath)
@@ -136,10 +137,8 @@ void SuperpoweredExample::check()
 		if (!lockOpen)
 		{
 			lockOpen = true;
-//			__android_log_print(ANDROID_LOG_INFO, TAG, "playerB->open(http://www.wezeejay.fr/audio/38.mp3)");
-//			playerB->open("http://www.wezeejay.fr/audio/38.mp3");
-			__android_log_print(ANDROID_LOG_INFO, TAG, "playerA->open(http://www.wezeejay.fr/audio/17.mp3)");
-			playerA->open("http://www.wezeejay.fr/audio/17.mp3");
+			__android_log_print(ANDROID_LOG_INFO, TAG, "playerB->open(http://www.wezeejay.fr/audio/38.mp3)");
+			playerB->open("http://www.wezeejay.fr/audio/38.mp3");
 		}
 	}
 	else if (step == 4)
