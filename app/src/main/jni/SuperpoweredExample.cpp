@@ -53,21 +53,20 @@ bool SuperpoweredExample::process(short int *audioIO, unsigned int numberOfSampl
 	// process:
 	bool silenceA = !playerA->process(stereoBuffer1, false, numberOfSamples);
 	bool silenceB = !playerB->process(stereoBuffer2, false, numberOfSamples);
-//	bool silenceC = !playerC->process(stereoBuffer3, false, numberOfSamples);
-//	if (!silenceA)
-//	{
-//		SuperpoweredFloatToShortInt(stereoBuffer1, audioIO, numberOfSamples);
-//	}
-//	if (!silenceB)
-//	{
-//		SuperpoweredFloatToShortInt(stereoBuffer2, audioIO, numberOfSamples);
-//	}
-//	if (!silenceC)
-//	{
-//		SuperpoweredFloatToShortInt(stereoBuffer3, audioIO, numberOfSamples);
-//	}
-//	return (!silenceA || !silenceB || !silenceC);
-	return false;
+	bool silenceC = !playerC->process(stereoBuffer3, false, numberOfSamples);
+	if (!silenceA)
+	{
+		SuperpoweredFloatToShortInt(stereoBuffer1, audioIO, numberOfSamples);
+	}
+	if (!silenceB)
+	{
+		SuperpoweredFloatToShortInt(stereoBuffer2, audioIO, numberOfSamples);
+	}
+	if (!silenceC)
+	{
+		SuperpoweredFloatToShortInt(stereoBuffer3, audioIO, numberOfSamples);
+	}
+	return (!silenceA || !silenceB || !silenceC);
 }
 
 SuperpoweredExample::SuperpoweredExample(unsigned int samplerate, unsigned int buffersize, const char *pathA, const char *pathB, const char *pathC, const char *localpath)
@@ -107,7 +106,9 @@ SuperpoweredExample::~SuperpoweredExample()
 void SuperpoweredExample::open()
 {
 	// init download sequence in SuperpoweredExample::process():
-	step = 1;
+//	step = 1;
+	playerA->open("http://www.wezeejay.fr/audio/35.mp3");
+	playerA->play(false);
 }
 
 void SuperpoweredExample::check()
