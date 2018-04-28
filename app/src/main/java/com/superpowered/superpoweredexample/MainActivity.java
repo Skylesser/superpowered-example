@@ -14,7 +14,6 @@ public class MainActivity extends AppCompatActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		// TODO : *-> resume download and play si coupure internet / play ne fonctionne pas même si on remet une connexion internet
 		// TODO : *-> bug comment connaître le niveau de téléchargement d'un titre en secondes à tout moment
 		// TODO : *-> légères variations de volumes si le son est accéléré en master tempo / parasites si le son est ralenti en master tempo
 		// TODO : *-> play(false) retardé si on fait pause avant
