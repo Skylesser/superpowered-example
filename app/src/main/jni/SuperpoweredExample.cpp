@@ -44,17 +44,28 @@ static bool audioProcessing(void *clientdata, short int *audioIO, int numberOfSa
 
 bool SuperpoweredExample::process(short int *audioIO, unsigned int numberOfSamples)
 {
+	// launch playerB when playerA reaches a position :
+	if (playerA->positionMs > 5000)
+	{
+		playerB->play(false);
+	}
+	
 	// process:
 	bool silenceA = !playerA->process(stereoBuffer1, false, numberOfSamples);
 	bool silenceB = !playerB->process(stereoBuffer2, false, numberOfSamples);
 	bool silenceC = !playerC->process(stereoBuffer3, false, numberOfSamples);
-	if (!silenceA)
+	if (!silenceA && silenceB)
 	{
 		SuperpoweredFloatToShortInt(stereoBuffer1, audioIO, numberOfSamples);
 	}
-	if (!silenceB)
+	else if (!silenceB && silenceA)
 	{
 		SuperpoweredFloatToShortInt(stereoBuffer2, audioIO, numberOfSamples);
+	}
+	else if (!silenceA && !silenceB)
+	{
+		SuperpoweredAdd2(stereoBuffer1, stereoBuffer2, stereoBufferP, numberOfSamples * 2);
+		SuperpoweredFloatToShortInt(stereoBufferP, audioIO, numberOfSamples);
 	}
 	if (!silenceC)
 	{
@@ -70,6 +81,7 @@ SuperpoweredExample::SuperpoweredExample(unsigned int samplerate, unsigned int b
 	stereoBuffer1 = (float *) memalign(16, (buffersize * 8) + 64);
 	stereoBuffer2 = (float *) memalign(16, (buffersize * 8) + 64);
 	stereoBuffer3 = (float *) memalign(16, (buffersize * 8) + 64);
+	stereoBufferP = (float *) memalign(16, (buffersize * 8) + 64);
 	
     playerA = new SuperpoweredAdvancedAudioPlayer(&playerA, playerEventCallbackA, samplerate, 0);
     playerB = new SuperpoweredAdvancedAudioPlayer(&playerB, playerEventCallbackA, samplerate, 0);
@@ -93,13 +105,15 @@ SuperpoweredExample::~SuperpoweredExample()
 	free(stereoBuffer1);
 	free(stereoBuffer2);
 	free(stereoBuffer3);
+	free(stereoBufferP);
 }
 
 void SuperpoweredExample::open()
 {
-	// init download sequence in SuperpoweredExample::process():
 	playerA->open("http://www.wezeejay.fr/audio/89.mp3");
 	playerA->play(false);
+	
+	playerB->open("http://www.wezeejay.fr/audio/200.mp3");
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_SuperPoweredPlayer_SuperpoweredExample(JNIEnv *env, jobject instance, jint samplerate,

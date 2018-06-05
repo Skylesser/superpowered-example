@@ -25,6 +25,7 @@ private:
 	float *stereoBuffer1;
 	float *stereoBuffer2;
 	float *stereoBuffer3;
+	float *stereoBufferP;
 
 };
 
