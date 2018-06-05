@@ -57,13 +57,12 @@ class SuperPoweredPlayer
 		SuperpoweredExample(sampleRate, bufferSize, URL_A, URL_B, URL_C, repertoire.getAbsolutePath());
 	}
 	
-	void openSequence()
+	void openPlay()
 	{
 		open();
 	}
 	
 	private native void SuperpoweredExample(int samplerate, int buffersize, String urlA, String urlB, String urlC, String localPath);
 	private native void open();
-	private native void check();
 	
 }

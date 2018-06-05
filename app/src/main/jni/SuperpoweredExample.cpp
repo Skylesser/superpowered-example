@@ -11,30 +11,24 @@
 #define TAG "SuperPoweredExample"
 
 static SuperpoweredExample *renderer = NULL;
-static bool lockOpen;
-static int step = 0;
 
 static void playerEventCallbackA(void *clientData, SuperpoweredAdvancedAudioPlayerEvent event, void * __unused value)
 {
     if (event == SuperpoweredAdvancedAudioPlayerEvent_LoadSuccess)
     {
         __android_log_print(ANDROID_LOG_DEBUG, TAG, "File loaded succesfully!");
-	    lockOpen = false;
     }
     else if (event == SuperpoweredAdvancedAudioPlayerEvent_LoadError)
     {
         __android_log_print(ANDROID_LOG_ERROR, TAG, "File error loading 1");
-	    lockOpen = false;
     }
     else if (event == SuperpoweredAdvancedAudioPlayerEvent_HLSNetworkError)
     {
         __android_log_print(ANDROID_LOG_ERROR, TAG, "File error loading 2");
-	    lockOpen = false;
     }
     else if (event == SuperpoweredAdvancedAudioPlayerEvent_ProgressiveDownloadError)
     {
         __android_log_print(ANDROID_LOG_ERROR, TAG, "File error loading 3");
-	    lockOpen = false;
     }
     else if (event == SuperpoweredAdvancedAudioPlayerEvent_EOF)
     {
@@ -77,8 +71,6 @@ SuperpoweredExample::SuperpoweredExample(unsigned int samplerate, unsigned int b
 	stereoBuffer2 = (float *) memalign(16, (buffersize * 8) + 64);
 	stereoBuffer3 = (float *) memalign(16, (buffersize * 8) + 64);
 	
-	lockOpen = false;
-
     playerA = new SuperpoweredAdvancedAudioPlayer(&playerA, playerEventCallbackA, samplerate, 0);
     playerB = new SuperpoweredAdvancedAudioPlayer(&playerB, playerEventCallbackA, samplerate, 0);
     playerC = new SuperpoweredAdvancedAudioPlayer(&playerC, playerEventCallbackA, samplerate, 0);
@@ -106,88 +98,9 @@ SuperpoweredExample::~SuperpoweredExample()
 void SuperpoweredExample::open()
 {
 	// init download sequence in SuperpoweredExample::process():
-//	step = 1;
-	playerA->open("http://www.wezeejay.fr/audio/35.mp3");
+	playerA->open("http://www.wezeejay.fr/audio/89.mp3");
 	playerA->play(false);
 }
-
-void SuperpoweredExample::check()
-{
-	// download sequence:
-	if (step == 1)
-	{
-		step++;
-		if (!lockOpen)
-		{
-			lockOpen = true;
-			__android_log_print(ANDROID_LOG_INFO, TAG, "playerA->open(http://www.wezeejay.fr/audio/17.mp3)");
-			playerA->open("http://www.wezeejay.fr/audio/17.mp3");
-		}
-	}
-	else if (step == 2)
-	{
-		if (playerA->fullyDownloadedFilePath != NULL)
-		{
-			step++;
-			__android_log_print(ANDROID_LOG_DEBUG, TAG, "playerA complete!");
-		}
-	}
-	else if (step == 3)
-	{
-		step++;
-		if (!lockOpen)
-		{
-			lockOpen = true;
-			__android_log_print(ANDROID_LOG_INFO, TAG, "playerB->open(http://www.wezeejay.fr/audio/38.mp3)");
-			playerB->open("http://www.wezeejay.fr/audio/38.mp3");
-		}
-	}
-	else if (step == 4)
-	{
-		if (playerB->fullyDownloadedFilePath != NULL)
-		{
-			step++;
-			__android_log_print(ANDROID_LOG_DEBUG, TAG, "playerB complete!");
-		}
-	}
-	else if (step == 5)
-	{
-		step++;
-		if (!lockOpen)
-		{
-			lockOpen = true;
-			__android_log_print(ANDROID_LOG_INFO, TAG, "playerC->open(http://www.wezeejay.fr/audio/2.mp3)");
-			playerC->open("http://www.wezeejay.fr/audio/2.mp3");
-		}
-	}
-	else if (step == 6)
-	{
-		if (playerC->fullyDownloadedFilePath != NULL)
-		{
-			step++;
-			__android_log_print(ANDROID_LOG_DEBUG, TAG, "playerC complete!");
-		}
-	}
-	else if (step == 7)
-	{
-		step++;
-		if (!lockOpen)
-		{
-			lockOpen = true;
-			__android_log_print(ANDROID_LOG_INFO, TAG, "playerB->open(http://www.wezeejay.fr/audio/35.mp3)");
-			playerB->open("http://www.wezeejay.fr/audio/35.mp3");
-		}
-	}
-	else if (step == 8)
-	{
-		if (playerB->fullyDownloadedFilePath != NULL)
-		{
-			step++;
-			__android_log_print(ANDROID_LOG_DEBUG, TAG, "playerB complete!");
-		}
-	}
-}
-
 
 extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_SuperPoweredPlayer_SuperpoweredExample(JNIEnv *env, jobject instance, jint samplerate,
                                                                                                                    jint buffersize, jstring urlA, jstring urlB, jstring urlC,
@@ -207,9 +120,4 @@ extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_Supe
 extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_SuperPoweredPlayer_open(JNIEnv *env, jobject instance)
 {
 	renderer->open();
-}
-
-extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_SuperPoweredPlayer_check(JNIEnv *env, jobject instance)
-{
-	renderer->check();
 }

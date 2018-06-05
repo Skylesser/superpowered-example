@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity
 		if (player != null)
 		{
 			Log.w("SuperPoweredExample", "open test start...");
-			player.openSequence();
+			player.openPlay();
 		}
 	}
 	
