@@ -45,6 +45,7 @@ static bool audioProcessing(void *clientdata, short int *audioIO, int numberOfSa
 bool SuperpoweredExample::process(short int *audioIO, unsigned int numberOfSamples)
 {
 	// launch playerB when playerA reaches a position :
+	__android_log_print(ANDROID_LOG_INFO, TAG, "Position : %lf, bufferEndPercent : %lf, playing : %i", playerA->positionMs, playerA->bufferEndPercent, playerA->playing);
 	if (playerA->positionMs > 5000)
 	{
 		playerB->play(false);
