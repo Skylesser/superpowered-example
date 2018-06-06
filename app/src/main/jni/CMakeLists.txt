@@ -15,6 +15,7 @@ add_library(
 	${CPP_FILES}
 	${CMAKE_SOURCE_DIR}/Superpowered/AndroidIO/SuperpoweredAndroidAudioIO.cpp
 	${CMAKE_SOURCE_DIR}/SuperpoweredExample.cpp
+	${CMAKE_SOURCE_DIR}/AudioPlayer.cpp
 )
 
 include_directories(src/main/jni)

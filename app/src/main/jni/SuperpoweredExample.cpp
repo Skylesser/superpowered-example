@@ -17,6 +17,12 @@ static void playerEventCallbackA(void *clientData, SuperpoweredAdvancedAudioPlay
     if (event == SuperpoweredAdvancedAudioPlayerEvent_LoadSuccess)
     {
         __android_log_print(ANDROID_LOG_DEBUG, TAG, "File loaded succesfully!");
+	    AudioPlayer *player = *((AudioPlayer **) clientData);
+	    if (player->test)
+	    {
+		    __android_log_print(ANDROID_LOG_WARN, TAG, "Play!");
+		    player->play(false);
+	    }
     }
     else if (event == SuperpoweredAdvancedAudioPlayerEvent_LoadError)
     {
@@ -48,7 +54,7 @@ bool SuperpoweredExample::process(short int *audioIO, unsigned int numberOfSampl
 	__android_log_print(ANDROID_LOG_INFO, TAG, "Position : %lf, bufferEndPercent : %lf, playing : %i", playerA->positionMs, playerA->bufferEndPercent, playerA->playing);
 	if (playerA->positionMs > 5000)
 	{
-		playerB->play(false);
+	//	playerB->play(false);
 	}
 	
 	// process:
@@ -84,9 +90,9 @@ SuperpoweredExample::SuperpoweredExample(unsigned int samplerate, unsigned int b
 	stereoBuffer3 = (float *) memalign(16, (buffersize * 8) + 64);
 	stereoBufferP = (float *) memalign(16, (buffersize * 8) + 64);
 	
-    playerA = new SuperpoweredAdvancedAudioPlayer(&playerA, playerEventCallbackA, samplerate, 0);
-    playerB = new SuperpoweredAdvancedAudioPlayer(&playerB, playerEventCallbackA, samplerate, 0);
-    playerC = new SuperpoweredAdvancedAudioPlayer(&playerC, playerEventCallbackA, samplerate, 0);
+    playerA = new AudioPlayer(&playerA, playerEventCallbackA, samplerate, 0);
+    playerB = new AudioPlayer(&playerB, playerEventCallbackA, samplerate, 0);
+    playerC = new AudioPlayer(&playerC, playerEventCallbackA, samplerate, 0);
 	
 	playerA->syncMode = SuperpoweredAdvancedAudioPlayerSyncMode_TempoAndBeat;
 	playerB->syncMode = SuperpoweredAdvancedAudioPlayerSyncMode_TempoAndBeat;
@@ -111,8 +117,8 @@ SuperpoweredExample::~SuperpoweredExample()
 
 void SuperpoweredExample::open()
 {
+	playerA->test = true;
 	playerA->open("http://www.wezeejay.fr/audio/89.mp3");
-	playerA->play(false);
 	
 	playerB->open("http://www.wezeejay.fr/audio/200.mp3");
 }

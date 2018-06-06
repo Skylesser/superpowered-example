@@ -6,6 +6,7 @@
 #include <AndroidIO/SuperpoweredAndroidAudioIO.h>
 #include <SuperpoweredAdvancedAudioPlayer.h>
 #include <Superpowered3BandEQ.h>
+#include "AudioPlayer.h"
 
 class SuperpoweredExample {
 
@@ -19,9 +20,9 @@ public:
 
 private:
     SuperpoweredAndroidAudioIO *audioSystem;
-    SuperpoweredAdvancedAudioPlayer *playerA;
-    SuperpoweredAdvancedAudioPlayer *playerB;
-    SuperpoweredAdvancedAudioPlayer *playerC;
+    AudioPlayer *playerA;
+    AudioPlayer *playerB;
+    AudioPlayer *playerC;
 	float *stereoBuffer1;
 	float *stereoBuffer2;
 	float *stereoBuffer3;
