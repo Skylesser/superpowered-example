@@ -40,7 +40,7 @@ class SuperPoweredPlayer
 		}
 		if (buffersizeString == null)
 		{
-			buffersizeString = "512";
+			buffersizeString = "256";
 		}
 		int sampleRate = Integer.parseInt(samplerateString);
 		int bufferSize = Integer.parseInt(buffersizeString);
@@ -57,12 +57,18 @@ class SuperPoweredPlayer
 		SuperpoweredExample(sampleRate, bufferSize, URL_A, URL_B, URL_C, repertoire.getAbsolutePath());
 	}
 	
-	void openPlay()
+	void openMp3()
 	{
 		open();
 	}
 	
+	void playMp3()
+	{
+		play();
+	}
+	
 	private native void SuperpoweredExample(int samplerate, int buffersize, String urlA, String urlB, String urlC, String localPath);
 	private native void open();
+	private native void play();
 	
 }

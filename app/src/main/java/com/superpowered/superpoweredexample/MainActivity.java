@@ -34,8 +34,17 @@ public class MainActivity extends AppCompatActivity
 	{
 		if (player != null)
 		{
-			Log.w("SuperPoweredExample", "open test start...");
-			player.openPlay();
+			Log.w("SuperPoweredExample", "open");
+			player.openMp3();
+		}
+	}
+	
+	public void onClickPlay(View view)
+	{
+		if (player != null)
+		{
+			Log.w("SuperPoweredExample", "play");
+			player.playMp3();
 		}
 	}
 	

@@ -17,12 +17,12 @@ static void playerEventCallbackA(void *clientData, SuperpoweredAdvancedAudioPlay
     if (event == SuperpoweredAdvancedAudioPlayerEvent_LoadSuccess)
     {
         __android_log_print(ANDROID_LOG_DEBUG, TAG, "File loaded succesfully!");
-	    AudioPlayer *player = *((AudioPlayer **) clientData);
-	    if (player->test)
-	    {
-		    __android_log_print(ANDROID_LOG_WARN, TAG, "Play!");
-		    player->play(false);
-	    }
+//	    AudioPlayer *player = *((AudioPlayer **) clientData);
+//	    if (player->test)
+//	    {
+//		    __android_log_print(ANDROID_LOG_WARN, TAG, "Play!");
+//		    player->play(false);
+//	    }
     }
     else if (event == SuperpoweredAdvancedAudioPlayerEvent_LoadError)
     {
@@ -50,16 +50,19 @@ static bool audioProcessing(void *clientdata, short int *audioIO, int numberOfSa
 
 bool SuperpoweredExample::process(short int *audioIO, unsigned int numberOfSamples)
 {
-	// launch playerB when playerA reaches a position :
-	__android_log_print(ANDROID_LOG_INFO, TAG, "Position : %lf, bufferEndPercent : %lf, playing : %i", playerA->positionMs, playerA->bufferEndPercent, playerA->playing);
+	// init:
+	double msElapsedSinceLastBeat1 = playerA->msElapsedSinceLastBeat;
+	
+	// launch playerB when playerA reaches a position:
+//	__android_log_print(ANDROID_LOG_INFO, TAG, "Position : %lf, bufferEndPercent : %lf, playing : %i", playerA->positionMs, playerA->bufferEndPercent, playerA->playing);
 	if (playerA->positionMs > 5000)
 	{
-	//	playerB->play(false);
+		playerB->play(true);
 	}
 	
 	// process:
-	bool silenceA = !playerA->process(stereoBuffer1, false, numberOfSamples);
-	bool silenceB = !playerB->process(stereoBuffer2, false, numberOfSamples);
+	bool silenceA = !playerA->process(stereoBuffer1, false, numberOfSamples, 0.2, 120);
+	bool silenceB = !playerB->process(stereoBuffer2, false, numberOfSamples, 1, 120, msElapsedSinceLastBeat1);
 	bool silenceC = !playerC->process(stereoBuffer3, false, numberOfSamples);
 	if (!silenceA && silenceB)
 	{
@@ -119,8 +122,21 @@ void SuperpoweredExample::open()
 {
 	playerA->test = true;
 	playerA->open("http://www.wezeejay.fr/audio/89.mp3");
-	
 	playerB->open("http://www.wezeejay.fr/audio/200.mp3");
+	
+	playerA->setBpm(120);
+	playerB->setBpm(120);
+	
+	playerA->setFirstBeatMs(5000);
+	playerB->setFirstBeatMs(1000);
+	playerB->setPosition(1000, true, false);
+}
+
+void SuperpoweredExample::play()
+{
+	__android_log_print(ANDROID_LOG_INFO, TAG, "playerA download complete : %i", (playerA->fullyDownloadedFilePath != NULL));
+	__android_log_print(ANDROID_LOG_INFO, TAG, "playerB download complete : %i", (playerB->fullyDownloadedFilePath != NULL));
+	playerA->play(false);
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_SuperPoweredPlayer_SuperpoweredExample(JNIEnv *env, jobject instance, jint samplerate,
@@ -141,4 +157,9 @@ extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_Supe
 extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_SuperPoweredPlayer_open(JNIEnv *env, jobject instance)
 {
 	renderer->open();
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_superpowered_superpoweredexample_SuperPoweredPlayer_play(JNIEnv *env, jobject instance)
+{
+	renderer->play();
 }
