@@ -14,15 +14,16 @@ static SuperpoweredExample *renderer = NULL;
 
 static void playerEventCallbackA(void *clientData, SuperpoweredAdvancedAudioPlayerEvent event, void * __unused value)
 {
+	__android_log_print(ANDROID_LOG_INFO, TAG, "SuperpoweredExample playerEventCallbackA");
     if (event == SuperpoweredAdvancedAudioPlayerEvent_LoadSuccess)
     {
         __android_log_print(ANDROID_LOG_DEBUG, TAG, "File loaded succesfully!");
-//	    AudioPlayer *player = *((AudioPlayer **) clientData);
-//	    if (player->test)
-//	    {
-//		    __android_log_print(ANDROID_LOG_WARN, TAG, "Play!");
-//		    player->play(false);
-//	    }
+	    AudioPlayer *player = *((AudioPlayer **) clientData);
+	    if (player->test)
+	    {
+		    __android_log_print(ANDROID_LOG_WARN, TAG, "Play!");
+		    player->play(false);
+	    }
     }
     else if (event == SuperpoweredAdvancedAudioPlayerEvent_LoadError)
     {
@@ -130,6 +131,8 @@ void SuperpoweredExample::open()
 	playerA->setFirstBeatMs(5000);
 	playerB->setFirstBeatMs(1000);
 	playerB->setPosition(1000, true, false);
+	
+//	playerA->play(false);
 }
 
 void SuperpoweredExample::play()
