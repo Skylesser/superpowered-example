@@ -9,7 +9,7 @@
     audioProcessingCallback_C processingCallback;
     void *processingClientdata;
     
-    AudioComponentInstance inputUnit, outputUnit;
+    AudioUnit inputUnit, outputUnit;
     AudioBufferList *inputBuffers0, *inputBuffers1;
     float **inputBufs0, **inputBufs1;
 
@@ -29,13 +29,14 @@ static OSStatus audioInputCallback(void *inRefCon, AudioUnitRenderActionFlags *i
 
     self->inputFrames = inNumberFrames;
     self->hasInput = !AudioUnitRender(self->inputUnit, ioActionFlags, inTimeStamp, inBusNumber, inNumberFrames, self->inputEven ? self->inputBuffers0 : self->inputBuffers1);
-    self->inputEven = !self->inputEven;
     
     if (self->hasInput && !self->outputEnabled) {
-        float **inputBufs = self->outputEven ? self->inputBufs0 : self->inputBufs1;
+        float **inputBufs = self->inputEven ? self->inputBufs0 : self->inputBufs1;
         if (self->processingCallback) self->processingCallback(self->processingClientdata, inputBufs, self->inputChannels, NULL, self->numberOfChannels, inNumberFrames, self->samplerate, inTimeStamp->mHostTime);
         else if (self->delegate) [self->delegate audioProcessingCallback:inputBufs inputChannels:self->inputChannels outputBuffers:NULL outputChannels:self->numberOfChannels numberOfSamples:inNumberFrames samplerate:self->samplerate hostTime:inTimeStamp->mHostTime];
     }
+    
+    self->inputEven = !self->inputEven;
 	return noErr;
 }
 
@@ -155,10 +156,12 @@ static void destroyUnit(AudioComponentInstance *unit) {
 }
 
 static void streamFormatChangedCallback(void *inRefCon, AudioUnit inUnit, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement) {
-    if ((inScope == kAudioUnitScope_Output) && (inElement == 0)) {
-        SuperpoweredOSXAudioIO *self = (__bridge SuperpoweredOSXAudioIO *)inRefCon;
+    SuperpoweredOSXAudioIO *self = (__bridge SuperpoweredOSXAudioIO *)inRefCon;
+    if (
+        ((inUnit == self->outputUnit) && (inScope == kAudioUnitScope_Output) && (inElement == 0)) ||
+        ((inUnit == self->inputUnit) && (inScope == kAudioUnitScope_Input) && (inElement == 1))
+        )
         [self performSelectorOnMainThread:@selector(recreate) withObject:nil waitUntilDone:NO];
-    };
 }
 
 static AudioDeviceID getAudioDevice(bool input) {
@@ -189,8 +192,8 @@ static bool enableInput(AudioUnit au, bool enable) {
 
 static void makeStreamFormat(AudioUnit au, AudioStreamBasicDescription *format, bool input) {
     UInt32 size = 0;
-    AudioUnitGetPropertyInfo(au, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output, input ? 1 : 0, &size, NULL);
-    AudioUnitGetProperty(au, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output, input ? 1 : 0, format, &size);
+    AudioUnitGetPropertyInfo(au, kAudioUnitProperty_StreamFormat, input ? kAudioUnitScope_Input : kAudioUnitScope_Output, input ? 1 : 0, &size, NULL);
+    AudioUnitGetProperty(au, kAudioUnitProperty_StreamFormat, input ? kAudioUnitScope_Input : kAudioUnitScope_Output, input ? 1 : 0, format, &size);
     format->mFormatID = kAudioFormatLinearPCM;
     format->mFormatFlags = kAudioFormatFlagIsFloat | kAudioFormatFlagIsPacked | kAudioFormatFlagIsNonInterleaved | kAudioFormatFlagsNativeEndian;
     format->mBitsPerChannel = 32;

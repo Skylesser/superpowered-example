@@ -55,10 +55,14 @@ bool SuperpoweredExample::process(short int *audioIO, unsigned int numberOfSampl
 	double msElapsedSinceLastBeat1 = playerA->msElapsedSinceLastBeat;
 	
 	// launch playerB when playerA reaches a position:
-//	__android_log_print(ANDROID_LOG_INFO, TAG, "Position : %lf, bufferEndPercent : %lf, playing : %i", playerA->positionMs, playerA->bufferEndPercent, playerA->playing);
+	if (playerA->bufferEndPercent >= positionLog)
+	{
+		__android_log_print(ANDROID_LOG_INFO, TAG, "Position : %lf, bufferEndPercent : %lf, playing : %i", playerA->positionMs, playerA->bufferEndPercent, playerA->playing);
+		positionLog += 0.02;
+	}
 	if (playerA->positionMs > 5000)
 	{
-		playerB->play(true);
+//		playerB->play(true);
 	}
 	
 	// process:
@@ -121,6 +125,8 @@ SuperpoweredExample::~SuperpoweredExample()
 
 void SuperpoweredExample::open()
 {
+	positionLog = 0;
+	
 	playerA->test = true;
 	playerA->open("http://www.wezeejay.fr/audio/89.mp3");
 	playerB->open("http://www.wezeejay.fr/audio/200.mp3");
